@@ -46,6 +46,87 @@ def upload():
     else:
         return "Only PDF files are allowed."
 
+@app.route('/match-job', methods=['POST'])
+def match_job_to_profile():
+    data = request.json
+    job_description = data.get('job_description')
+    user_email = data.get('email')
+
+    if not job_description:
+        return {"error": "Missing job description"}, 400
+    if not user_email:
+        return {"error": "Missing email"}, 400
+
+    profile = fetch_profile_from_supabase(user_email)
+    gemini_input = build_gemini_prompt(profile, job_description)
+    gemini_response = send_to_gemini(gemini_input)
+
+    return gemini_response
+
+def fetch_profile_from_supabase(email: str) -> dict:
+    profile_resp = supabase.table("user_profiles").select("*").eq("email", email).single().execute()
+    profile_data = profile_resp.data
+    profile_id = profile_data["id"]
+
+    skills = supabase.table("skills").select("id, name").eq("profile_id", profile_id).execute().data
+    projects = supabase.table("projects").select("id, name, description").eq("profile_id", profile_id).execute().data
+    experiences = supabase.table("work_experiences").select("id, position, company, duration, description").eq("profile_id", profile_id).execute().data
+
+    return {
+        "profile_id": profile_id,
+        "skills": skills,
+        "projects": projects,
+        "experiences": experiences
+    }
+
+MATCH_PROMPT_TEMPLATE = """
+You're an expert resume matcher. Here's a user's profile:
+
+Skills:
+{skills}
+
+Projects:
+{projects}
+
+Work Experience:
+{experiences}
+
+Job Description:
+\"\"\"{job_description}\"\"\"
+
+Return a JSON object with:
+- matched_skill_ids
+- matched_project_ids
+- matched_experience_ids
+- improved_descriptions: {{ id: updated_description }}
+
+Ensure this would be the best combination of skills, projects, and experiences for the user to match the job description and company.
+
+Only return valid JSON. No explanations or markdown.
+"""
+def build_gemini_prompt(profile: dict, job_description: str) -> str:
+    return MATCH_PROMPT_TEMPLATE.format(
+        skills=json.dumps(profile["skills"], indent=2),
+        projects=json.dumps(profile["projects"], indent=2),
+        experiences=json.dumps(profile["experiences"], indent=2),
+        job_description=job_description
+    )
+
+def send_to_gemini(prompt: str) -> dict:
+    client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+
+    response = client.models.generate_content(
+        model="gemini-2.0-pro",  # Use flash for speed if preferred
+        contents=prompt
+    )
+
+    try:
+        return json.loads(clean_and_parse_gemini_output(response.text))
+    except json.JSONDecodeError:
+        return {"error": "Invalid Gemini response", "raw_output": response.text}
+
+
+
     
 
 def save_profile_to_supabase(profile_data: dict):
