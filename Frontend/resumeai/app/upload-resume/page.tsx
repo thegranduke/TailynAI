@@ -33,7 +33,7 @@ export default function UploadResumePage() {
       } else {
         setError("Upload failed. Please try again.");
         // Redirecting the user to the jobs page anyway just for testing purposes
-        router.push("/upload-job");
+        // router.push("/upload-job");
       }
     } catch (err) {
       setError("An error occurred. Please try again.");

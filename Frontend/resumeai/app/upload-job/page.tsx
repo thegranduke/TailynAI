@@ -30,7 +30,7 @@ export default function UploadJobPage() {
       formData.append("job_text", jobText.trim());
     }
     try {
-      const res = await fetch("/api/upload-job", {
+      const res = await fetch("/api/match-job", {
         method: "POST",
         body: formData,
       });

@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     backendForm.append("job_text", jobText.trim());
   }
 
-  const FLASK_URL = process.env.FLASK_URL || "http://localhost:5000/upload-job";
+  const FLASK_URL = process.env.FLASK_URL || "http://localhost:5000/match-job";
 
   try {
     const flaskRes = await fetch(FLASK_URL, {

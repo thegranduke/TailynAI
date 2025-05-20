@@ -48,9 +48,19 @@ def upload():
 
 @app.route('/match-job', methods=['POST'])
 def match_job_to_profile():
-    data = request.json
+    if request.is_json:
+        data = request.get_json()
+    else:
+        # Handle multipart/form-data
+        job_text = request.form.get('job_text')
+        job_pdf = request.files.get('job_pdf')
+        # You can extract text from the PDF here if needed
+    data = {
+        "job_description": job_text,
+        # Add more fields as needed
+    }
     job_description = data.get('job_description')
-    user_email = data.get('email')
+    user_email = "einompi@gmail.com" #data.get('email')
 
     if not job_description:
         return {"error": "Missing job description"}, 400
@@ -116,7 +126,7 @@ def send_to_gemini(prompt: str) -> dict:
     client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
 
     response = client.models.generate_content(
-        model="gemini-2.0-pro",  # Use flash for speed if preferred
+        model="gemini-2.0-flash",  # Use flash for speed if preferred
         contents=prompt
     )
 
