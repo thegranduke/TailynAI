@@ -107,8 +107,79 @@ def match_job_to_profile():
         return {"error": "User profile not found"}, 404
     gemini_input = build_gemini_prompt(profile, job_description)
     gemini_response = send_to_gemini(gemini_input)
+    print(gemini_response)
 
-    return gemini_response
+    # Parse Gemini output for job info and matches
+    job_title = gemini_response.get("job_title")
+    job_company = gemini_response.get("job_company")
+    job_raw_description = gemini_response.get("job_raw_description", job_description)
+    matched_skill_ids = gemini_response.get("matched_skill_ids", [])
+    matched_project_ids = gemini_response.get("matched_project_ids", [])
+    matched_experience_ids = gemini_response.get("matched_experience_ids", [])
+    improved_descriptions = gemini_response.get("improved_descriptions", {})
+
+    # 1. Create job in job_descriptions
+    job_insert = supabase.table("job_descriptions").insert({
+        "profile_id": user_id,
+        "title": job_title,
+        "company": job_company,
+        "raw_description": job_raw_description
+    }).execute()
+    job_id = None
+    if job_insert.data and len(job_insert.data) > 0:
+        job_id = job_insert.data[0]["id"]
+    else:
+        return {"error": "Failed to create job description"}, 500
+
+    # 2. Create job_matches (skills)
+    for skill_id in matched_skill_ids:
+        try:
+            supabase.table("job_matches").insert({
+                "job_id": job_id,
+                "skill_id": skill_id
+            }).execute()
+        except Exception as e:
+            if "duplicate key value violates unique constraint" in str(e):
+                pass
+            else:
+                raise
+
+    # 3. Create project_matches
+    for project_id in matched_project_ids:
+        improved_desc = improved_descriptions.get(str(project_id)) or improved_descriptions.get(project_id) or None
+        try:
+            supabase.table("project_matches").insert({
+                "job_id": job_id,
+                "project_id": project_id,
+                "improved_description": improved_desc
+            }).execute()
+        except Exception as e:
+            if "duplicate key value violates unique constraint" in str(e):
+                pass
+            else:
+                raise
+
+    # 4. Create experience_matches
+    for exp_id in matched_experience_ids:
+        improved_desc = improved_descriptions.get(str(exp_id)) or improved_descriptions.get(exp_id) or None
+        try:
+            supabase.table("experience_matches").insert({
+                "job_id": job_id,
+                "experience_id": exp_id,
+                "improved_description": improved_desc
+            }).execute()
+        except Exception as e:
+            if "duplicate key value violates unique constraint" in str(e):
+                pass
+            else:
+                raise
+
+    return {
+        "job_id": job_id,
+        "matched_skill_ids": matched_skill_ids,
+        "matched_project_ids": matched_project_ids,
+        "matched_experience_ids": matched_experience_ids
+    }
 
 def fetch_profile_from_supabase(clerk_user_id: str) -> dict:
     # Fetch the user profile by clerk_user_id
@@ -154,18 +225,22 @@ Work Experience:
 {experiences}
 
 Job Description:
-\"\"\"{job_description}\"\"\"
+{job_description}
 
 Return a JSON object with:
-- matched_skill_ids
-- matched_project_ids
-- matched_experience_ids
-- improved_descriptions: {{ id: updated_description }}
+- job_title: the job title (if available)
+- job_company: the company name (if available)
+- job_raw_description: the full job description text
+- matched_skill_ids: list of skill ids that best match
+- matched_project_ids: list of project ids that best match
+- matched_experience_ids: list of experience ids that best match
+- improved_descriptions: {{ id: updated_description }} for projects and experiences
 
 Ensure this would be the best combination of skills, projects, and experiences for the user to match the job description and company.
 
 Only return valid JSON. No explanations or markdown.
 """
+
 def build_gemini_prompt(profile: dict, job_description: str) -> str:
     return MATCH_PROMPT_TEMPLATE.format(
         skills=json.dumps(profile["skills"], indent=2),
@@ -183,6 +258,7 @@ def send_to_gemini(prompt: str) -> dict:
     )
 
     try:
+        print(response.text)
         return json.loads(clean_and_parse_gemini_output(response.text))
     except json.JSONDecodeError:
         return {"error": "Invalid Gemini response", "raw_output": response.text}

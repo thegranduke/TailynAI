@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@clerk/nextjs";
 
 export default function UploadJobPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -11,6 +12,7 @@ export default function UploadJobPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { getToken, userId } = useAuth();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -29,10 +31,15 @@ export default function UploadJobPage() {
     if (jobText.trim()) {
       formData.append("job_text", jobText.trim());
     }
+    if (userId) {
+      formData.append("clerk_user_id", userId);
+    }
     try {
+      const token = await getToken();
       const res = await fetch("/api/match-job", {
         method: "POST",
         body: formData,
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
       if (res.ok) {
         const data = await res.json();

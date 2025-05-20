@@ -14,10 +14,15 @@ export async function POST(req: NextRequest) {
   // Change this to your Flask backend URL
   const FLASK_URL = process.env.FLASK_URL || "http://localhost:5000/upload";
 
+  // Forward the Authorization header
+  const token = req.headers.get("authorization");
+  console.log("Forwarding token to Flask:", token); // For testing
+
   try {
     const flaskRes = await fetch(FLASK_URL, {
       method: "POST",
       body: backendForm,
+      headers: token ? { Authorization: token } : undefined,
     });
     if (!flaskRes.ok) {
       return NextResponse.json({ error: "Flask upload failed" }, { status: 500 });

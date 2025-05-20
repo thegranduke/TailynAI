@@ -4,12 +4,14 @@ import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 // If shadcn/ui Button is not available, fallback to a native button
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@clerk/nextjs";
 
 export default function UploadResumePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { getToken, userId } = useAuth();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -24,16 +26,20 @@ export default function UploadResumePage() {
     }
     formData.append("resume", file);
     try {
+      const token = await getToken();
+      console.log("Clerk token:", token); // For testing
+      console.log("Clerk userId:", userId); // For testing
       const res = await fetch("/api/upload-resume", {
         method: "POST",
         body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (res.ok) {
         router.push("/upload-job");
       } else {
         setError("Upload failed. Please try again.");
-        // Redirecting the user to the jobs page anyway just for testing purposes
-        // router.push("/upload-job");
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
