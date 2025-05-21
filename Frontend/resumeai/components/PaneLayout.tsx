@@ -7,14 +7,12 @@ interface PaneLayoutProps {
 
 export default function PaneLayout({ left, right }: PaneLayoutProps) {
   return (
-    <div className="min-h-screen bg-[#f9f6f2] flex justify-center items-start">
-      <div className="grid grid-cols-1 md:grid-cols-[400px_1fr] w-full max-w-6xl min-h-screen">
-        <div className="bg-[#f7f5f2] h-full p-8 border-r border-[#ece7df] flex flex-col">
-          {left}
-        </div>
-        <div className="bg-transparent h-full p-8 flex flex-col items-center justify-start">
-          {right}
-        </div>
+    <div className="min-h-screen bg-[#FDF9F4] flex">
+      <div className="w-2/5 min-w-[320px] max-w-lg bg-[#FDF9F4] h-full p-6 border-r border-[#e6e1d9] flex flex-col">
+        {left}
+      </div>
+      <div className="flex-1 bg-[#FCF9F4] h-full p-10 flex flex-col items-center justify-start overflow-auto">
+        {right}
       </div>
     </div>
   );

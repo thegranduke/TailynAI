@@ -20,7 +20,7 @@ export default function ProjectEditor() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 bg-[#FFFEFB]">
       {projects.map((project, idx) => (
         <Card key={project.id || idx} className="p-4 flex flex-col gap-2">
           <input

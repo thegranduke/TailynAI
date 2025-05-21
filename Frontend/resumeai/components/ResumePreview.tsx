@@ -1,50 +1,101 @@
 import React from "react";
 import { useResumeStore } from "../store/useResumeStore";
 
+function SectionHeader({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="font-bold text-lg tracking-wide border-b border-gray-200 pb-1 mb-2 mt-8 uppercase">{children}</div>
+  );
+}
+
 export default function ResumePreview() {
   const personal = useResumeStore(s => s.personal);
   const skills = useResumeStore(s => s.skills);
   const experiences = useResumeStore(s => s.experiences);
   const projects = useResumeStore(s => s.projects);
 
+  // Only render website, github, summary if they exist
+  const website = (personal as any).website;
+  const github = (personal as any).github;
+  const summary = (personal as any).summary;
+
   return (
     <div className="w-full max-w-2xl">
       <div className="bg-white rounded-xl border border-[#ece7df] shadow-sm p-10">
-        <div className="mb-6">
-          <div className="text-3xl font-bold mb-1">{personal.name || ""}</div>
-          <div className="text-lg mb-2">Data Scientist</div>
-          <div className="text-base text-gray-700 mb-1">{personal.email || ""}</div>
-          <div className="text-base text-gray-700">{personal.phone || ""}</div>
+        {/* Header */}
+        <div className="text-center mb-2">
+          <div className="text-3xl font-light mb-1">{personal.name || ""}</div>
+          <div className="flex flex-col items-center justify-center text-sm text-gray-700 mb-2 gap-1">
+            <div className="flex flex-wrap justify-center gap-2">
+              {personal.email && <span className="flex items-center gap-1"><span className="text-base">✉️</span> {personal.email}</span>}
+              {website && <span className="flex items-center gap-1"><span className="text-base">🌐</span> {website}</span>}
+              {github && <span className="flex items-center gap-1"><span className="text-base">github.com</span> {github}</span>}
+            </div>
+            {personal.phone && <div>{personal.phone}</div>}
+          </div>
+          {summary && (
+            <div className="italic text-xs text-gray-500 mb-2">{summary}</div>
+          )}
         </div>
-        <div className="mb-6">
-          <div className="font-semibold text-xl mb-2">Skills</div>
-          <ul className="list-none p-0 m-0 space-y-1">
-            {skills.map((skill: any) => (
-              <li key={skill.id} className="text-base">{skill.name}</li>
-            ))}
-          </ul>
-        </div>
-        <div className="mb-6">
-          <div className="font-semibold text-xl mb-2">Work Experience</div>
+
+        {/* Professional Experience */}
+        <SectionHeader>Professional Experience</SectionHeader>
+        <div className="flex flex-col gap-2">
           {experiences.map((exp: any) => (
-            <div key={exp.id} className="mb-4">
-              <div className="font-semibold text-base">{exp.position}</div>
-              <div className="text-base text-gray-700 mb-1">{exp.company}</div>
-              <div className="text-base text-gray-700 mb-1">{exp.duration}</div>
-              <div className="text-base whitespace-pre-line">{exp.description}</div>
+            <div key={exp.id} className="mb-2">
+              <div className="flex justify-between items-baseline mb-1">
+                <div>
+                  {exp.position && <span className="uppercase text-xs font-semibold text-gray-700 mr-2">{exp.position}</span>}
+                  {exp.company && <span className="text-base text-gray-900">{exp.company}</span>}
+                </div>
+                <div className="text-xs text-right text-gray-500">
+                  {exp.location && <span>{exp.location}, </span>}
+                  {exp.dates || exp.duration}
+                </div>
+              </div>
+              {exp.bullets ? (
+                <ul className="list-disc ml-6 text-sm mt-1">
+                  {exp.bullets.map((b: string, i: number) => <li key={i}>{b}</li>)}
+                </ul>
+              ) : exp.description && (
+                <ul className="list-disc ml-6 text-sm mt-1">
+                  {exp.description.split('\n').map((line: string, i: number) =>
+                    line.trim() && <li key={i}>{line}</li>
+                  )}
+                </ul>
+              )}
             </div>
           ))}
         </div>
-        <div>
-          <div className="font-semibold text-xl mb-2">Projects</div>
+
+        {/* Projects */}
+        <SectionHeader>Projects</SectionHeader>
+        <div className="flex flex-col gap-2">
           {projects.map((project: any) => (
-            <div key={project.id} className="mb-4">
-              <div className="font-semibold text-base">{project.name}</div>
-              <div className="text-base whitespace-pre-line">{project.description}</div>
-              {project.link && (
-                <div className="text-xs text-blue-600"><a href={project.link} target="_blank" rel="noopener noreferrer">{project.link}</a></div>
+            <div key={project.id} className="mb-2">
+              <div className="font-bold text-base mb-1">{project.name}</div>
+              {project.bullets ? (
+                <ul className="list-disc ml-6 text-sm mt-1">
+                  {project.bullets.map((b: string, i: number) => <li key={i}>{b}</li>)}
+                </ul>
+              ) : project.description && (
+                <ul className="list-disc ml-6 text-sm mt-1">
+                  {project.description.split('\n').map((line: string, i: number) =>
+                    line.trim() && <li key={i}>{line}</li>
+                  )}
+                </ul>
+              )}
+              {project.tech_stack && (
+                <div className="text-xs text-gray-500 mt-1">Tech Stack: {project.tech_stack}</div>
               )}
             </div>
+          ))}
+        </div>
+
+        {/* Skills */}
+        <SectionHeader>Skills</SectionHeader>
+        <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
+          {skills.map((skill: any) => (
+            <span key={skill.id}>{skill.name}</span>
           ))}
         </div>
       </div>

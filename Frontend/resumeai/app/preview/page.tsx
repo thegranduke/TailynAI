@@ -47,7 +47,7 @@ export default function PreviewPage() {
       left={<EditableSidebar loading={loading} />}
       right={
         error ? (
-          <div className="text-red-500 p-8">{error}</div>
+          <div className="text-red-500 p-8 ">{error}</div>
         ) : (
           <ResumePreview />
         )
