@@ -1,56 +1,57 @@
 "use client";
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import PaneLayout from "@/components/PaneLayout";
 import EditableSidebar from "@/components/EditableSidebar";
 import ResumePreview from "@/components/ResumePreview";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { useResumeStore } from "@/store/useResumeStore";
+import { fetchResumeData } from "@/lib/fetchResumeData";
+import { useUser } from "@clerk/nextjs";
+import { useSearchParams } from "next/navigation";
 
 export default function PreviewPage() {
-  const [projects, setProjects] = useState<any[]>([]);
-  const [experiences, setExperiences] = useState<any[]>([]);
-  const [skills, setSkills] = useState<any[]>([]);
+  const setPersonal = useResumeStore(s => s.setPersonal);
+  const setSkills = useResumeStore(s => s.setSkills);
+  const setExperiences = useResumeStore(s => s.setExperiences);
+  const setProjects = useResumeStore(s => s.setProjects);
+
+  const { user } = useUser();
+  const searchParams = useSearchParams();
+  
+
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const selected = localStorage.getItem("selected_ids");
-    if (!selected) return;
-    const { project_ids, experience_ids, skill_ids } = JSON.parse(selected);
-    async function fetchData() {
-      setLoading(true);
-      const [projRes, expRes, skillRes] = await Promise.all([
-        supabase.from("projects").select("*").in("id", project_ids),
-        supabase.from("work_experiences").select("*\n").in("id", experience_ids),
-        supabase.from("skills").select("*\n").in("id", skill_ids),
-      ]);
-      setProjects(projRes.data || []);
-      setExperiences(expRes.data || []);
-      setSkills(skillRes.data || []);
-      setLoading(false);
-    }
-    fetchData();
-  }, []);
+    const job_id = searchParams.get("job_id");
+    console.log("user?.id:", user?.id, "job_id:", job_id);
+    if (!user?.id || !job_id) return;
+    setLoading(true);
+    setError(null);
+    fetchResumeData(user.id, job_id)
+      .then(data => {
+        console.log("Resume data:", data);
+        setPersonal(data.personal);
+        setSkills(data.skills);
+        setExperiences(data.experiences);
+        setProjects(data.projects);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError("Failed to load resume data. " + (err?.message || ""));
+        setLoading(false);
+      });
+  }, [user?.id, searchParams]);
 
   return (
-    <main className="flex min-h-screen bg-background">
-      <div className="w-full max-w-xs border-r">
-        <EditableSidebar
-          projects={projects}
-          experiences={experiences}
-          skills={skills}
-          loading={loading}
-        />
-      </div>
-      <div className="flex-1 p-8 overflow-auto">
-        <ResumePreview
-          projects={projects}
-          experiences={experiences}
-          skills={skills}
-          loading={loading}
-        />
-      </div>
-    </main>
+    <PaneLayout
+      left={<EditableSidebar loading={loading} />}
+      right={
+        error ? (
+          <div className="text-red-500 p-8">{error}</div>
+        ) : (
+          <ResumePreview />
+        )
+      }
+    />
   );
 } 

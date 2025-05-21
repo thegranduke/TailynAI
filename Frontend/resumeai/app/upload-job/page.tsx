@@ -43,12 +43,16 @@ export default function UploadJobPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        const { project_ids, experience_ids, skill_ids } = data;
+        const { project_ids, experience_ids, skill_ids, job_id } = data;
         localStorage.setItem(
           "selected_ids",
           JSON.stringify({ project_ids, experience_ids, skill_ids })
         );
-        router.push("/preview");
+        if (job_id) {
+          router.push(`/preview?job_id=${job_id}`);
+        } else {
+          router.push("/preview");
+        }
       } else {
         setError("Upload failed. Please try again.");
       }
