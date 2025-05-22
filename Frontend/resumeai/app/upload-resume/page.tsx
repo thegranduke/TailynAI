@@ -66,6 +66,9 @@ export default function UploadResumePage() {
             </Button>
             {error && <div className="text-red-500 text-sm text-center">{error}</div>}
           </form>
+          <Button variant="outline" className="w-full" onClick={() => router.push('/manual-entry')}>
+            Manually Add Experience
+          </Button>
         </Card>
       </div>
     </main>
