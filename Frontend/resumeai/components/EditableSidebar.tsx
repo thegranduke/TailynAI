@@ -4,6 +4,8 @@ import PersonalEditor from "@/components/PersonalEditor";
 import SkillsEditor from "@/components/SkillsEditor";
 import ExperienceEditor from "@/components/ExperienceEditor";
 import ProjectEditor from "@/components/ProjectEditor";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 function CollapsibleSidebarCard({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -24,7 +26,7 @@ function CollapsibleSidebarCard({ title, children, defaultOpen = false }: { titl
 
 export default function EditableSidebar({ loading }: { loading?: boolean }) {
   return (
-    <div className="flex flex-col gap-8 w-full">
+    <div className="flex flex-col gap-8 w-full h-full">
       {/* Toolbar row (icons, etc.) */}
       <div className="flex items-center justify-center mb-4 mt-1">
         <div className="flex gap-3 bg-[#FFFEFB] rounded-xl px-4 py-2 border border-[#ece7df]">
@@ -52,6 +54,12 @@ export default function EditableSidebar({ loading }: { loading?: boolean }) {
         <SkillsEditor />
       </div>
       {loading && <div className="text-center text-gray-400">Loading...</div>}
+      {/* Go to Dashboard Button */}
+      <div className="mt-auto pt-4">
+        <Link href="/dashboard" passHref legacyBehavior>
+          <Button className="w-full bg-[#D96E36] hover:bg-[#D96E36]/80">Go to Dashboard</Button>
+        </Link>
+      </div>
     </div>
   );
 } 
