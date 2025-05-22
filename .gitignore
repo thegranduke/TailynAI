@@ -2,3 +2,4 @@
 /env
 Backend/uploads/*
 TODO_DB_ON_CONFLICT.txt
+schema.sql

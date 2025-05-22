@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useResumeStore } from "../store/useResumeStore";
+import ResumePDF from "./ResumePDF";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
@@ -18,9 +20,28 @@ export default function ResumePreview() {
   const github = (personal as any).github;
   const summary = (personal as any).summary;
 
+  // Ref for the resume content
+  const resumeRef = useRef<HTMLDivElement>(null);
+
   return (
     <div className="w-full max-w-2xl">
-      <div className="bg-white rounded-xl border border-[#ece7df] shadow-sm p-10">
+      {/* Download Button */}
+      <div className="flex justify-end mb-4">
+        <PDFDownloadLink
+          document={<ResumePDF personal={personal} skills={skills} experiences={experiences} projects={projects} />}
+          fileName={`${personal.name ? personal.name.replace(/\s+/g, '_') : 'resume'}.pdf`}
+        >
+          {({ loading }) => (
+            <button
+              className="px-4 py-2 bg-[#D96E36] text-white rounded hover:bg-[#D96E36]/80 transition"
+              disabled={loading}
+            >
+              {loading ? "Preparing PDF..." : "Download PDF"}
+            </button>
+          )}
+        </PDFDownloadLink>
+      </div>
+      <div ref={resumeRef} className="bg-white rounded-xl border border-[#ece7df] shadow-sm p-10">
         {/* Header */}
         <div className="text-center mb-2">
           <div className="text-3xl font-light mb-1">{personal.name || ""}</div>
