@@ -13,7 +13,7 @@ export default function PersonalEditor() {
         <Label htmlFor="name">Name</Label>
         <Input
           id="name"
-          className="bg-[#FFFEFB]"
+          className="border border-[#ece7df] bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
           value={personal.name || ""}
           onChange={e => setPersonal({ ...personal, name: e.target.value })}
         />
@@ -22,7 +22,7 @@ export default function PersonalEditor() {
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
-          className="bg-[#FFFEFB]"
+          className="border border-[#ece7df] bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
           value={personal.email || ""}
           onChange={e => setPersonal({ ...personal, email: e.target.value })}
         />
@@ -31,7 +31,7 @@ export default function PersonalEditor() {
         <Label htmlFor="phone">Phone</Label>
         <Input
           id="phone"
-          className="bg-[#FFFEFB]"
+          className="border border-[#ece7df] bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
           value={personal.phone || ""}
           onChange={e => setPersonal({ ...personal, phone: e.target.value })}
         />

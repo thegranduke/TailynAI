@@ -22,27 +22,27 @@ export default function ExperienceEditor() {
   return (
     <div className="flex flex-col gap-4">
       {experiences.map((exp, idx) => (
-        <Card key={exp.id || idx} className="p-4 flex flex-col gap-2">
+        <Card key={exp.id || idx} className="p-4 flex flex-col gap-2 border border-[#ece7df] bg-white shadow-none">
           <input
-            className="border rounded p-2 font-semibold"
+            className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
             value={exp.position}
             placeholder="Position"
             onChange={e => updateExperience(idx, "position", e.target.value)}
           />
           <input
-            className="border rounded p-2"
+            className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
             value={exp.company}
             placeholder="Company"
             onChange={e => updateExperience(idx, "company", e.target.value)}
           />
           <input
-            className="border rounded p-2"
+            className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
             value={exp.duration}
             placeholder="Duration"
             onChange={e => updateExperience(idx, "duration", e.target.value)}
           />
           <Textarea
-            className="resize-y"
+            className="resize-y border border-[#ece7df] bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
             value={exp.description}
             rows={3}
             placeholder="Description"

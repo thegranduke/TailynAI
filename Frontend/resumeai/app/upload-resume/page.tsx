@@ -49,19 +49,19 @@ export default function UploadResumePage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-4 bg-background">
+    <main className="flex min-h-screen items-center justify-center p-4 bg-[#FCF9F4]">
       <div className="w-full max-w-md">
-        <Card className="p-6 flex flex-col gap-4">
+        <Card className="p-6 flex flex-col gap-4 border border-[#ece7df] bg-white shadow-none">
           <h2 className="text-xl font-semibold mb-4 text-center">Upload Your Resume (PDF)</h2>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <input
               type="file"
               accept="application/pdf"
               ref={fileInputRef}
-              className="border rounded p-2"
+              className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
               required
             />
-            <Button type="submit" disabled={loading} className="w-full">
+            <Button type="submit" disabled={loading} className="w-full bg-[#D96E36] hover:bg-[#D96E36]/90">
               {loading ? "Uploading..." : "Upload Resume"}
             </Button>
             {error && <div className="text-red-500 text-sm text-center">{error}</div>}

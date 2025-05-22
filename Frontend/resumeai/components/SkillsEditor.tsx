@@ -23,7 +23,7 @@ export default function SkillsEditor() {
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-2 mb-2">
         {skills.map((skill, idx) => (
-          <span key={skill.id || idx} className="inline-flex items-center bg-[#FFFEFB] border border-[#e6e1d9] rounded px-2 py-1 text-sm font-medium">
+          <span key={skill.id || idx} className="inline-flex items-center bg-[#FCF9F4] border border-[#ece7df] rounded px-2 py-1 text-sm font-medium">
             {skill.name}
             <button
               type="button"
@@ -38,7 +38,7 @@ export default function SkillsEditor() {
       </div>
       <div className="flex gap-2">
         <input
-          className="border rounded  p-2 flex-1"
+          className="border border-[#ece7df] rounded p-2 flex-1 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
           value={newSkill}
           onChange={e => setNewSkill(e.target.value)}
           placeholder="Add skill"

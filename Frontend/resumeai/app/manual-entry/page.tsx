@@ -49,7 +49,12 @@ export default function ManualEntryPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center p-4 bg-[#FCF9F4]">
-      <div className="w-full max-w-2xl flex flex-col gap-8">
+      <div className="w-full max-w-2xl flex flex-col gap-8 relative">
+        <div className="absolute right-0 top-0 mt-2 mr-2">
+          <a href="/dashboard">
+            <Button variant="ghost" className="px-4 py-2 text-sm font-medium">Dashboard</Button>
+          </a>
+        </div>
         <h1 className="text-2xl font-bold text-center mb-2">Manually Add Experience</h1>
         {/* Projects */}
         <Card className="p-6 flex flex-col gap-4 border border-[#ece7df] bg-white shadow-none">
