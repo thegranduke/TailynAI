@@ -26,4 +26,44 @@ export async function fetchResumeData(user_id: string, job_id: string) {
     projects: projectsRes.data?.filter((p: any) => matchedProjectIds.length === 0 || matchedProjectIds.includes(p.id)) || [],
     experiences: expRes.data?.filter((e: any) => matchedExperienceIds.length === 0 || matchedExperienceIds.includes(e.id)) || [],
   };
+}
+
+export async function fetchEducation(user_id: string) {
+  const { data, error } = await supabase
+    .from('education')
+    .select('*')
+    .eq('profile_id', user_id)
+    .order('year', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function fetchProjects(user_id: string) {
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('profile_id', user_id)
+    .order('id', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function fetchExperiences(user_id: string) {
+  const { data, error } = await supabase
+    .from('work_experiences')
+    .select('*')
+    .eq('profile_id', user_id)
+    .order('id', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function fetchSkills(user_id: string) {
+  const { data, error } = await supabase
+    .from('skills')
+    .select('*')
+    .eq('profile_id', user_id)
+    .order('id', { ascending: false });
+  if (error) throw error;
+  return data || [];
 } 
