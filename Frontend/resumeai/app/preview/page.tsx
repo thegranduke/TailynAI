@@ -53,7 +53,7 @@ export default function PreviewPage() {
     <SidebarProvider>
       <div className="flex min-h-screen w-screen overflow-x-hidden bg-[#f9f6f1]">
         {/* Sidebar width is set here: */}
-        <Sidebar className="w-1/3 min-w-[260px] max-w-md bg-[#FDF9F4] h-full p-6 border-r border-[#e6e1d9] flex flex-col">
+        <Sidebar className="w-1/3 min-w-[260px] max-w-md bg-[#FDF9F4] h-full  border-r border-[#e6e1d9] flex flex-col">
           <SidebarContent className="flex-1 flex flex-col gap-8">
             <EditableSidebar loading={loading} hideGoToDashboard />
           </SidebarContent>

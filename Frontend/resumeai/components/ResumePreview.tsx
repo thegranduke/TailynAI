@@ -1,7 +1,6 @@
 import React, { useRef } from "react";
 import { useResumeStore } from "../store/useResumeStore";
 import ResumePDF from "./ResumePDF";
-import { PDFDownloadLink } from "@react-pdf/renderer";
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
@@ -25,22 +24,6 @@ export default function ResumePreview() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-full w-full">
-      {/* Download Button */}
-      <div className="flex justify-end w-full max-w-2xl mx-auto mb-4">
-        <PDFDownloadLink
-          document={<ResumePDF personal={personal} skills={skills} experiences={experiences} projects={projects} />}
-          fileName={`${personal.name ? personal.name.replace(/\s+/g, '_') : 'resume'}.pdf`}
-        >
-          {({ loading }) => (
-            <button
-              className="px-4 py-2 bg-[#D96E36] text-white rounded hover:bg-[#D96E36]/80 transition font-semibold"
-              disabled={loading}
-            >
-              {loading ? "Preparing PDF..." : "Download PDF"}
-            </button>
-          )}
-        </PDFDownloadLink>
-      </div>
       <div ref={resumeRef} className="bg-white rounded-xl border border-[#ece7df] shadow-none p-10 w-full max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-2">
@@ -59,26 +42,26 @@ export default function ResumePreview() {
         </div>
 
         {/* Professional Experience */}
-        <SectionHeader>Professional Experience</SectionHeader>
+        <SectionHeader>PROFESSIONAL EXPERIENCE</SectionHeader>
         <div className="flex flex-col gap-2">
           {experiences.map((exp: any) => (
             <div key={exp.id} className="mb-2">
               <div className="flex justify-between items-baseline mb-1">
                 <div>
-                  {exp.position && <span className="uppercase text-xs font-semibold text-gray-700 mr-2">{exp.position}</span>}
-                  {exp.company && <span className="text-base text-gray-900">{exp.company}</span>}
+                  {exp.position && <span className="font-bold text-base text-gray-900 uppercase mr-2">{exp.position}</span>}
+                  {exp.company && <span className="text-base text-gray-800">{exp.company}</span>}
                 </div>
-                <div className="text-xs text-right text-gray-500">
+                <div className="text-xs text-right text-gray-600">
                   {exp.location && <span>{exp.location}, </span>}
                   {exp.dates || exp.duration}
                 </div>
               </div>
               {exp.bullets ? (
-                <ul className="list-disc ml-6 text-sm mt-1">
+                <ul className="list-disc ml-6 text-sm text-gray-800 mt-1">
                   {exp.bullets.map((b: string, i: number) => <li key={i}>{b}</li>)}
                 </ul>
               ) : exp.description && (
-                <ul className="list-disc ml-6 text-sm mt-1">
+                <ul className="list-disc ml-6 text-sm text-gray-800 mt-1">
                   {exp.description.split('\n').map((line: string, i: number) =>
                     line.trim() && <li key={i}>{line}</li>
                   )}
@@ -89,24 +72,27 @@ export default function ResumePreview() {
         </div>
 
         {/* Projects */}
-        <SectionHeader>Projects</SectionHeader>
+        <SectionHeader>PROJECTS</SectionHeader>
         <div className="flex flex-col gap-2">
           {projects.map((project: any) => (
             <div key={project.id} className="mb-2">
-              <div className="font-bold text-base mb-1">{project.name}</div>
+              <div className="flex justify-between items-baseline mb-1">
+                <div className="font-bold text-base text-gray-900">{project.name}</div>
+                {project.dates && <div className="text-xs text-right text-gray-600">{project.dates}</div>}
+              </div>
               {project.bullets ? (
-                <ul className="list-disc ml-6 text-sm mt-1">
+                <ul className="list-disc ml-6 text-sm text-gray-800 mt-1">
                   {project.bullets.map((b: string, i: number) => <li key={i}>{b}</li>)}
                 </ul>
               ) : project.description && (
-                <ul className="list-disc ml-6 text-sm mt-1">
+                <ul className="list-disc ml-6 text-sm text-gray-800 mt-1">
                   {project.description.split('\n').map((line: string, i: number) =>
                     line.trim() && <li key={i}>{line}</li>
                   )}
                 </ul>
               )}
               {project.tech_stack && (
-                <div className="text-xs text-gray-500 mt-1">Tech Stack: {project.tech_stack}</div>
+                <div className="text-xs text-gray-600 mt-1">Tech Stack: {project.tech_stack}</div>
               )}
             </div>
           ))}

@@ -547,6 +547,7 @@ export default function DashboardPage() {
                             {expanded ? <ChevronDown className="w-5 h-5 mr-2" /> : <ChevronRight className="w-5 h-5 mr-2" />}
                             {exp.position} {exp.company && <span className="text-base text-gray-600">- {exp.company}</span>}
                           </div>
+                          {!editing && <Button variant="outline" size="sm" onClick={e => { e.stopPropagation(); startExperienceEdit(exp); }}>Edit</Button>}
                         </div>
                         {expanded && (
                           <div className="mt-2">

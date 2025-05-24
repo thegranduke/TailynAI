@@ -6,6 +6,9 @@ import ExperienceEditor from "@/components/ExperienceEditor";
 import ProjectEditor from "@/components/ProjectEditor";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import ResumePDF from "./ResumePDF";
+import { useResumeStore } from "../store/useResumeStore";
 
 function CollapsibleSidebarCard({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -25,15 +28,52 @@ function CollapsibleSidebarCard({ title, children, defaultOpen = false }: { titl
 }
 
 export default function EditableSidebar({ loading, hideGoToDashboard = false }: { loading?: boolean, hideGoToDashboard?: boolean }) {
+  const personal = useResumeStore(s => s.personal);
+  const skills = useResumeStore(s => s.skills);
+  const experiences = useResumeStore(s => s.experiences);
+  const projects = useResumeStore(s => s.projects);
   return (
-    <div className="flex flex-col gap-6 w-full h-full bg-[#FFFEFB] p-4">
+    <div
+      className="flex flex-col gap-6 w-full h-full bg-[#FFFEFB] p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-[#ece7df] scrollbar-track-[#FCF9F4] scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
+      style={{
+        scrollbarColor: '#ece7df #FCF9F4',
+        scrollbarWidth: 'thin',
+      }}
+    >
       {/* Toolbar row (icons, etc.) */}
       <div className="flex items-center justify-center mb-2 mt-1">
-        <div className="flex gap-3 bg-[#FFFEFB] rounded-xl px-4 py-2 border border-[#ece7df]">
-          <button className="rounded-full border border-[#ece7df] bg-white p-2 w-9 h-9 flex items-center justify-center hover:bg-[#f0ede7] transition" title="Preview"><Eye className="w-5 h-5 text-[#666]" /></button>
-          <button className="rounded-full border border-[#ece7df] bg-white p-2 w-9 h-9 flex items-center justify-center hover:bg-[#f0ede7] transition" title="Download"><Download className="w-5 h-5 text-[#666]" /></button>
-          <button className="rounded-full border border-[#ece7df] bg-white p-2 w-9 h-9 flex items-center justify-center hover:bg-[#f0ede7] transition" title="Share"><Share2 className="w-5 h-5 text-[#666]" /></button>
-        </div>
+        <PDFDownloadLink
+          document={
+            <ResumePDF
+              personal={{ ...personal }}
+              skills={skills.map(s => ({ id: s.id, name: s.name }))}
+              experiences={experiences.map(e => ({
+                id: e.id,
+                position: e.position,
+                company: e.company,
+                duration: e.duration,
+                description: e.description,
+                // add other serializable fields if needed
+              }))}
+              projects={projects.map(p => ({
+                id: p.id,
+                name: p.name,
+                description: p.description,
+                // add other serializable fields if needed
+              }))}
+            />
+          }
+          fileName={`${personal.name ? personal.name.replace(/\s+/g, '_') : 'resume'}.pdf`}
+        >
+          {({ loading }) => (
+            <Button
+              className="bg-[#D96E36] hover:bg-[#D96E36]/90 text-white font-semibold rounded px-6 py-2"
+              disabled={loading}
+            >
+              {loading ? "Preparing PDF..." : "Download PDF"}
+            </Button>
+          )}
+        </PDFDownloadLink>
       </div>
       <div>
         <div className="font-semibold text-lg mb-2 text-[#222] tracking-tight">Personal Info</div>
