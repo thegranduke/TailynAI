@@ -25,20 +25,20 @@ export default function ProjectEditor() {
         <Card key={project.id || idx} className="p-4 flex flex-col gap-2 border border-[#ece7df] bg-white shadow-none">
           <input
             className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-            value={project.name}
+            value={project.name || ""}
             placeholder="Project Name"
             onChange={e => updateProject(idx, "name", e.target.value)}
           />
           <Textarea
             className="resize-y border border-[#ece7df] bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-            value={project.description}
+            value={project.description || ""}
             rows={3}
             placeholder="Description"
             onChange={e => updateProject(idx, "description", e.target.value)}
           />
           <input
             className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-            value={project.link}
+            value={project.link || ""}
             placeholder="Link (optional)"
             onChange={e => updateProject(idx, "link", e.target.value)}
           />
