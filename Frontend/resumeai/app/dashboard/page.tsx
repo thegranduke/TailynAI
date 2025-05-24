@@ -165,35 +165,23 @@ export default function DashboardPage() {
     if (!user?.id) return;
     setLoading(true);
     setError(null);
-    if (activeSection === "Resumes") {
-    fetchDashboardJobs(user.id)
-      .then(setJobs)
-      .catch(e => setError("Failed to load jobs."))
-      .finally(() => setLoading(false));
-    } else if (activeSection === "Projects") {
-      fetchProjects(user.id)
-        .then(setProjects)
-        .catch(e => setError("Failed to load projects."))
-        .finally(() => setLoading(false));
-    } else if (activeSection === "Experiences") {
-      fetchExperiences(user.id)
-        .then(setExperiences)
-        .catch(e => setError("Failed to load experiences."))
-        .finally(() => setLoading(false));
-    } else if (activeSection === "Education") {
-      fetchEducation(user.id)
-        .then(setEducation)
-        .catch(e => setError("Failed to load education."))
-        .finally(() => setLoading(false));
-    } else if (activeSection === "Skills") {
+    Promise.all([
+      fetchDashboardJobs(user.id),
+      fetchProjects(user.id),
+      fetchExperiences(user.id),
+      fetchEducation(user.id),
       fetchSkills(user.id)
-        .then(setSkills)
-        .catch(e => setError("Failed to load skills."))
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
-  }, [user?.id, activeSection]);
+    ])
+      .then(([jobsData, projectsData, experiencesData, educationData, skillsData]) => {
+        setJobs(jobsData);
+        setProjects(projectsData);
+        setExperiences(experiencesData);
+        setEducation(educationData);
+        setSkills(skillsData);
+      })
+      .catch(e => setError("Failed to load dashboard data."))
+      .finally(() => setLoading(false));
+  }, [user?.id]);
 
   // Remove skill handler
   async function handleRemoveSkill(skillId: number) {
@@ -494,7 +482,7 @@ export default function DashboardPage() {
                                 <div className="bg-[#FCF9F4] rounded p-2 mb-1 whitespace-pre-line">{project.description}</div>
                                 <div className="flex gap-2 mt-2">
                                   <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => startProjectEdit(project)}>Edit</Button>
-                                  <Button size="sm" variant="destructive" onClick={() => setDeleteModal({ type: 'project', id: project.id })}>Delete</Button>
+                                  <Button size="sm" className="bg-[#6B3F1D] text-white" onClick={() => setDeleteModal({ type: 'project', id: project.id })}>Delete</Button>
                                 </div>
                               </div>
                             )}
@@ -559,7 +547,6 @@ export default function DashboardPage() {
                             {expanded ? <ChevronDown className="w-5 h-5 mr-2" /> : <ChevronRight className="w-5 h-5 mr-2" />}
                             {exp.position} {exp.company && <span className="text-base text-gray-600">- {exp.company}</span>}
                           </div>
-                          {!editing && <Button variant="outline" size="sm" onClick={e => { e.stopPropagation(); startExperienceEdit(exp); }}>Edit</Button>}
                         </div>
                         {expanded && (
                           <div className="mt-2">
@@ -597,11 +584,13 @@ export default function DashboardPage() {
                               </div>
                             ) : (
                               <div>
-                                <div className="text-xs text-gray-500 mb-1">{exp.duration}</div>
-                                <div className="text-sm text-gray-700 mb-1">{exp.description}</div>
+                                <div className="font-semibold text-base mb-1 bg-[#FCF9F4] rounded p-2">{exp.position}</div>
+                                {exp.company && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{exp.company}</div>}
+                                {exp.duration && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{exp.duration}</div>}
+                                <div className="bg-[#FCF9F4] rounded p-2 mb-1 whitespace-pre-line">{exp.description}</div>
                                 <div className="flex gap-2 mt-2">
                                   <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => startExperienceEdit(exp)}>Edit</Button>
-                                  <Button size="sm" variant="destructive" onClick={() => setDeleteModal({ type: 'experience', id: exp.id })}>Delete</Button>
+                                  <Button size="sm" className="bg-[#6B3F1D] text-white" onClick={() => setDeleteModal({ type: 'experience', id: exp.id })}>Delete</Button>
                                 </div>
                               </div>
                             )}
@@ -709,7 +698,7 @@ export default function DashboardPage() {
                                 <div className="bg-[#FCF9F4] rounded p-2 mb-1 whitespace-pre-line">{edu.description}</div>
                                 <div className="flex gap-2 mt-2">
                                   <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => startEducationEdit(edu)}>Edit</Button>
-                                  <Button size="sm" variant="destructive" onClick={() => setDeleteModal({ type: 'education', id: edu.id })}>Delete</Button>
+                                  <Button size="sm" className="bg-[#6B3F1D] text-white" onClick={() => setDeleteModal({ type: 'education', id: edu.id })}>Delete</Button>
                                 </div>
                               </div>
                             )}
@@ -772,7 +761,14 @@ export default function DashboardPage() {
               <DialogDescription>Are you sure you want to delete this {deleteModal.type}? This action cannot be undone.</DialogDescription>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setDeleteModal({ type: '', id: null })}>Cancel</Button>
-                <Button className="bg-[#D96E36] text-white" onClick={() => handleDelete(deleteModal.type, deleteModal.id)}>Delete</Button>
+                <Button
+                  className="bg-[#D96E36] text-white"
+                  onClick={() => {
+                    if (deleteModal.id !== null) handleDelete(deleteModal.type, deleteModal.id);
+                  }}
+                >
+                  Delete
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
