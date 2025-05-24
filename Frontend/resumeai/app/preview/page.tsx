@@ -1,12 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
-import PaneLayout from "@/components/PaneLayout";
-import EditableSidebar from "@/components/EditableSidebar";
 import ResumePreview from "@/components/ResumePreview";
 import { useResumeStore } from "@/store/useResumeStore";
 import { fetchResumeData } from "@/lib/fetchResumeData";
 import { useUser } from "@clerk/nextjs";
 import { useSearchParams } from "next/navigation";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+} from "@/components/ui/sidebar";
+import EditableSidebar from "@/components/EditableSidebar";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function PreviewPage() {
   const setPersonal = useResumeStore(s => s.setPersonal);
@@ -43,15 +50,29 @@ export default function PreviewPage() {
   }, [user?.id, searchParams]);
 
   return (
-    <PaneLayout
-      left={<EditableSidebar loading={loading} />}
-      right={
-        error ? (
-          <div className="text-red-500 p-8 ">{error}</div>
-        ) : (
-          <ResumePreview />
-        )
-      }
-    />
+    <SidebarProvider>
+      <div className="flex min-h-screen w-screen overflow-x-hidden bg-[#f9f6f1]">
+        {/* Sidebar width is set here: */}
+        <Sidebar className="w-1/3 min-w-[260px] max-w-md bg-[#FDF9F4] h-full p-6 border-r border-[#e6e1d9] flex flex-col">
+          <SidebarContent className="flex-1 flex flex-col gap-8">
+            <EditableSidebar loading={loading} hideGoToDashboard />
+          </SidebarContent>
+          <SidebarFooter className="mt-auto pt-4">
+            <Link href="/dashboard" passHref legacyBehavior>
+              <Button className="w-full bg-[#D96E36] hover:bg-[#D96E36]/80">Go to Dashboard</Button>
+            </Link>
+          </SidebarFooter>
+        </Sidebar>
+        <main className="flex-1 flex flex-col items-center justify-start min-h-screen">
+          <div className="flex-1 w-full max-w-2xl mx-auto mb-8">
+            {error ? (
+              <div className="text-red-500 p-8 ">{error}</div>
+            ) : (
+              <ResumePreview />
+            )}
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 } 

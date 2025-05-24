@@ -24,16 +24,16 @@ export default function ResumePreview() {
   const resumeRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="w-full max-w-2xl">
+    <div className="flex flex-col items-center justify-center min-h-full w-full">
       {/* Download Button */}
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end w-full max-w-2xl mx-auto mb-4">
         <PDFDownloadLink
           document={<ResumePDF personal={personal} skills={skills} experiences={experiences} projects={projects} />}
           fileName={`${personal.name ? personal.name.replace(/\s+/g, '_') : 'resume'}.pdf`}
         >
           {({ loading }) => (
             <button
-              className="px-4 py-2 bg-[#D96E36] text-white rounded hover:bg-[#D96E36]/80 transition"
+              className="px-4 py-2 bg-[#D96E36] text-white rounded hover:bg-[#D96E36]/80 transition font-semibold"
               disabled={loading}
             >
               {loading ? "Preparing PDF..." : "Download PDF"}
@@ -41,7 +41,7 @@ export default function ResumePreview() {
           )}
         </PDFDownloadLink>
       </div>
-      <div ref={resumeRef} className="bg-white rounded-xl border border-[#ece7df] shadow-sm p-10">
+      <div ref={resumeRef} className="bg-white rounded-xl border border-[#ece7df] shadow-none p-10 w-full max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-2">
           <div className="text-3xl font-light mb-1">{personal.name || ""}</div>
