@@ -230,7 +230,7 @@ Job Description:
 Return a JSON object with:
 - job_title: the job title (if available)
 - job_company: the company name (if available)
-- job_raw_description: the full job description text
+- job_raw_description: the full job description text, with newlines separated by \\n
 - matched_skill_ids: list of skill ids that best match
 - matched_project_ids: list of project ids that best match
 - matched_experience_ids: list of experience ids that best match
@@ -365,7 +365,7 @@ You are a resume analysis expert. Given the following raw resume text, extract s
 - skills (as a list)
 - work_experience (as a list of objects with: position, company, duration, description)
 - education (as a list of objects with: degree, institution, year)
-- projects (as a list of objects with: name, description, link if present)
+- projects (as a list of objects with: name, description , with newlines separated by \\n, link if present)
 - links (any relevant links like LinkedIn, GitHub, portfolio)
 
 Only return valid JSON. Do not include explanations or Markdown.

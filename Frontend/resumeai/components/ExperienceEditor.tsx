@@ -8,6 +8,9 @@ export default function ExperienceEditor() {
   const experiences = useResumeStore(s => s.experiences);
   const setExperiences = useResumeStore(s => s.setExperiences);
 
+  // Log experiences to the console on every render
+  console.log("Current experiences:", experiences);
+
   const addExperience = () => {
     setExperiences([
       ...experiences,
