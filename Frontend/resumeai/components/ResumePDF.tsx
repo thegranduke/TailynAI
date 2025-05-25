@@ -6,6 +6,7 @@ interface ResumePDFProps {
   skills: any[];
   experiences: any[];
   projects: any[];
+  education: any[];
 }
 
 const styles = StyleSheet.create({
@@ -50,16 +51,34 @@ const styles = StyleSheet.create({
   },
 });
 
-const ResumePDF: React.FC<ResumePDFProps> = ({ personal, skills, experiences, projects }) => (
+const ResumePDF: React.FC<ResumePDFProps> = ({ personal, skills, experiences, projects, education }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       {/* Header */}
       <View style={styles.section}>
         <Text style={styles.header}>{personal.name || ''}</Text>
-        <Text style={styles.text}>{personal.email || ''} {personal.phone ? `| ${personal.phone}` : ''}</Text>
-        {personal.website && <Text style={styles.text}>{personal.website}</Text>}
-        {personal.github && <Text style={styles.text}>github.com/{personal.github}</Text>}
-        {personal.summary && <Text style={[styles.text, { fontStyle: 'italic', color: '#888' }]}>{personal.summary}</Text>}
+        <View style={{ alignItems: 'center', marginBottom: 2 }}>
+          <Text style={styles.text}>{personal.email || ''}{personal.phone ? ` | ${personal.phone}` : ''}</Text>
+        </View>
+        {personal.website && <Text style={{ ...styles.text, textAlign: 'center' }}>{personal.website}</Text>}
+        {personal.github && <Text style={{ ...styles.text, textAlign: 'center' }}>github.com/{personal.github}</Text>}
+        {personal.summary && <Text style={[styles.text, { fontStyle: 'italic', color: '#888', textAlign: 'center' }]}>{personal.summary}</Text>}
+      </View>
+
+      {/* Education */}
+      <Text style={styles.subHeader}>Education</Text>
+      <View style={styles.section}>
+        {education.map((edu: any) => (
+          <View key={edu.id} style={{ marginBottom: 6 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', width: '100%' }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                {edu.degree && <Text style={{ fontWeight: 'bold', fontSize: 12, textTransform: 'uppercase', marginRight: 4 }}>{edu.degree}</Text>}
+                {edu.institution && <Text style={{ fontSize: 12 }}>{edu.institution}</Text>}
+              </View>
+              <Text style={{ color: '#888', fontSize: 10, textAlign: 'right' }}>{edu.year}</Text>
+            </View>
+          </View>
+        ))}
       </View>
 
       {/* Professional Experience */}
@@ -67,8 +86,15 @@ const ResumePDF: React.FC<ResumePDFProps> = ({ personal, skills, experiences, pr
       <View style={styles.section}>
         {experiences.map((exp: any) => (
           <View key={exp.id} style={{ marginBottom: 6 }}>
-            <Text style={{ fontWeight: 'bold' }}>{exp.position} {exp.company && `@ ${exp.company}`}</Text>
-            <Text style={{ color: '#888', fontSize: 10 }}>{exp.location ? `${exp.location}, ` : ''}{exp.dates || exp.duration}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', width: '100%' }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                {exp.position && <Text style={{ fontWeight: 'bold', fontSize: 12, textTransform: 'uppercase', marginRight: 4 }}>{exp.position}</Text>}
+                {exp.company && <Text style={{ fontSize: 12 }}>{exp.company}</Text>}
+              </View>
+              <Text style={{ color: '#888', fontSize: 10, textAlign: 'right' }}>
+                {exp.location ? `${exp.location}, ` : ''}{exp.dates || exp.duration}
+              </Text>
+            </View>
             {exp.bullets ? (
               <View style={styles.list}>
                 {exp.bullets.map((b: string, i: number) => <Text key={i} style={styles.listItem}>• {b}</Text>)}

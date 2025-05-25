@@ -13,6 +13,7 @@ export default function ResumePreview() {
   const skills = useResumeStore(s => s.skills);
   const experiences = useResumeStore(s => s.experiences);
   const projects = useResumeStore(s => s.projects);
+  const education = useResumeStore(s => s.education);
 
   // Only render website, github, summary if they exist
   const website = (personal as any).website;
@@ -30,7 +31,7 @@ export default function ResumePreview() {
           <div className="text-3xl font-light mb-1">{personal.name || ""}</div>
           <div className="flex flex-col items-center justify-center text-sm text-gray-700 mb-2 gap-1">
             <div className="flex flex-wrap justify-center gap-2">
-              {personal.email && <span className="flex items-center gap-1"><span className="text-base">✉️</span> {personal.email}</span>}
+              {personal.email && <span className="flex items-center gap-1">{personal.email}</span>}
               {website && <span className="flex items-center gap-1"><span className="text-base">🌐</span> {website}</span>}
               {github && <span className="flex items-center gap-1"><span className="text-base">github.com</span> {github}</span>}
             </div>
@@ -39,6 +40,22 @@ export default function ResumePreview() {
           {summary && (
             <div className="italic text-xs text-gray-500 mb-2">{summary}</div>
           )}
+        </div>
+
+        {/* Education */}
+        <SectionHeader>EDUCATION</SectionHeader>
+        <div className="flex flex-col gap-2">
+          {education.map((edu: any) => (
+            <div key={edu.id} className="mb-2">
+              <div className="flex justify-between items-baseline mb-1">
+                <div>
+                  {edu.degree && <span className="font-bold text-base text-gray-900 uppercase mr-2">{edu.degree}</span>}
+                  {edu.institution && <span className="text-base text-gray-800">{edu.institution}</span>}
+                </div>
+                <div className="text-xs text-right text-gray-600">{edu.year}</div>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Professional Experience */}

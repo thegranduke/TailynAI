@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ResumePDF from "./ResumePDF";
 import { useResumeStore } from "../store/useResumeStore";
+import EducationEditor from "@/components/EducationEditor";
 
 function CollapsibleSidebarCard({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -32,6 +33,7 @@ export default function EditableSidebar({ loading, hideGoToDashboard = false }: 
   const skills = useResumeStore(s => s.skills);
   const experiences = useResumeStore(s => s.experiences);
   const projects = useResumeStore(s => s.projects);
+  const education = useResumeStore(s => s.education);
   return (
     <div
       className="flex flex-col gap-6 w-full h-full bg-[#FFFEFB] p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-[#ece7df] scrollbar-track-[#FCF9F4] scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
@@ -61,6 +63,12 @@ export default function EditableSidebar({ loading, hideGoToDashboard = false }: 
                 description: p.description,
                 // add other serializable fields if needed
               }))}
+              education={education.map(edu => ({
+                id: edu.id,
+                degree: edu.degree,
+                institution: edu.institution,
+                year: edu.year,
+              }))}
             />
           }
           fileName={`${personal.name ? personal.name.replace(/\s+/g, '_') : 'resume'}.pdf`}
@@ -78,6 +86,11 @@ export default function EditableSidebar({ loading, hideGoToDashboard = false }: 
       <div>
         <div className="font-semibold text-lg mb-2 text-[#222] tracking-tight">Personal Info</div>
         <PersonalEditor />
+      </div>
+      <div>
+        <CollapsibleSidebarCard title="Education" defaultOpen={false}>
+          <EducationEditor />
+        </CollapsibleSidebarCard>
       </div>
       <div>
         <CollapsibleSidebarCard title="Work Experience">

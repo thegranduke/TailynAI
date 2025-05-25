@@ -109,7 +109,7 @@ function DashboardSidebar({ setActiveSection, activeSection }: { setActiveSectio
     <Sidebar className="border-r border-[#ece7df] bg-white">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>ResumeAI</SidebarGroupLabel>
+          <SidebarGroupLabel>Tailyn</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {sidebarLinks.map(link => (
@@ -372,7 +372,7 @@ export default function DashboardPage() {
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <Button className="bg-[#D96E36] hover:bg-[#D96E36]/80 w-full sm:w-auto">Upload Resume</Button>
                 <Button variant="outline" className="w-full sm:w-auto">Upload Job Description</Button>
-                <Button variant="outline" className="w-full sm:w-auto">Add Projects/Experience/Skills</Button>
+                <Button variant="outline" className="w-full sm:w-auto">Add Data</Button>
               </div>
               )}
             </div>

@@ -20,6 +20,7 @@ export default function PreviewPage() {
   const setSkills = useResumeStore(s => s.setSkills);
   const setExperiences = useResumeStore(s => s.setExperiences);
   const setProjects = useResumeStore(s => s.setProjects);
+  const setEducation = useResumeStore(s => s.setEducation);
 
   const { user } = useUser();
   const searchParams = useSearchParams();
@@ -41,6 +42,7 @@ export default function PreviewPage() {
         setSkills(data.skills);
         setExperiences(data.experiences);
         setProjects(data.projects);
+        setEducation(data.education);
         setLoading(false);
       })
       .catch(err => {
