@@ -36,7 +36,7 @@ export default function EditableSidebar({ loading, hideGoToDashboard = false }: 
   const education = useResumeStore(s => s.education);
   return (
     <div
-      className="flex flex-col gap-6 w-full h-full bg-[#FFFEFB] p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-[#ece7df] scrollbar-track-[#FCF9F4] scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
+      className="flex flex-col gap-6 w-full h-full bg-[#FFFEFB] p-4 pt-14 overflow-y-auto scrollbar-thin scrollbar-thumb-[#ece7df] scrollbar-track-[#FCF9F4] scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
       style={{
         scrollbarColor: '#ece7df #FCF9F4',
         scrollbarWidth: 'thin',

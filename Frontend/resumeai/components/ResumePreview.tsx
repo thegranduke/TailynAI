@@ -24,7 +24,7 @@ export default function ResumePreview() {
   const resumeRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-full w-full">
+    <div className="flex flex-col items-center pt-2 pb-2 justify-center min-h-full w-full">
       <div ref={resumeRef} className="bg-white rounded-xl border border-[#ece7df] shadow-none p-10 w-full max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-2">

@@ -31,6 +31,8 @@ import {
 import { fetchProjects, fetchExperiences, fetchEducation, fetchSkills } from "@/lib/fetchResumeData";
 import ResumePreview from "@/components/ResumePreview";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const sidebarLinks = [
   { label: "Resumes", section: "Resumes" },
@@ -107,7 +109,7 @@ function SidebarAccountFooter() {
 function DashboardSidebar({ setActiveSection, activeSection }: { setActiveSection: (section: string) => void, activeSection: string }) {
   return (
     <Sidebar className="border-r border-[#ece7df] bg-white">
-      <SidebarContent>
+      <SidebarContent className="pt-12">
         <SidebarGroup>
           <SidebarGroupLabel>Tailyn</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -357,424 +359,428 @@ export default function DashboardPage() {
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-screen overflow-x-hidden bg-[#f9f6f1]">
-        <DashboardSidebar setActiveSection={setActiveSection} activeSection={activeSection} />
-        {/* Main Content */}
-        <main className="flex-1 flex flex-col items-center justify-start min-h-screen">
-          <div className="w-full flex justify-start p-4">
-            <SidebarTrigger />
-          </div>
-          <div className="w-full max-w-2xl mx-auto mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <h1 className="text-3xl font-bold tracking-tight flex-shrink-0">Dashboard</h1>
-              {activeSection === "Resumes" && (
-              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                <Button className="bg-[#D96E36] hover:bg-[#D96E36]/80 w-full sm:w-auto">Upload Resume</Button>
-                <Button variant="outline" className="w-full sm:w-auto">Upload Job Description</Button>
-                <Button variant="outline" className="w-full sm:w-auto">Add Data</Button>
-              </div>
-              )}
+    <div className="min-h-screen flex flex-col bg-[#FCF9F4] w-full">
+      <Header />
+      <SidebarProvider>
+        <div className="flex min-h-screen w-screen overflow-x-hidden bg-[#f9f6f1]">
+          <DashboardSidebar setActiveSection={setActiveSection} activeSection={activeSection} />
+          {/* Main Content */}
+          <main className="flex-1 flex flex-col items-center justify-start min-h-screen">
+            <div className="w-full flex justify-start p-4">
+              <SidebarTrigger />
             </div>
-          </div>
+            <div className="w-full max-w-2xl mx-auto mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <h1 className="text-3xl font-bold tracking-tight flex-shrink-0">Dashboard</h1>
+                {activeSection === "Resumes" && (
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                  <Button className="bg-[#D96E36] hover:bg-[#D96E36]/80 w-full sm:w-auto">Upload Resume</Button>
+                  <Button variant="outline" className="w-full sm:w-auto">Upload Job Description</Button>
+                  <Button variant="outline" className="w-full sm:w-auto">Add Data</Button>
+                </div>
+                )}
+              </div>
+            </div>
 
-          <div className="flex flex-col gap-5 w-full max-w-2xl mx-auto">
-            {loading ? (
-              <div className="flex justify-center items-center h-40">
-                <Loader2 className="animate-spin w-6 h-6 text-[#D96E36]" />
-              </div>
-            ) : error ? (
-              <div className="text-red-500 text-center">{error}</div>
-            ) : activeSection === "Resumes" ? (
-              jobs.length === 0 ? (
-              <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No jobs found. Upload a job description to get started!</Card>
-            ) : (
-              jobs.map(job => (
-                <Card key={job.id} className="flex flex-col md:flex-row md:items-center justify-between border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition">
-                  <div className="flex-1 flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-lg text-gray-900">{job.title}</span>
-                      {job.company && <span className="text-gray-600 text-base font-medium">- {job.company}</span>}
+            <div className="flex flex-col gap-5 w-full max-w-2xl mx-auto">
+              {loading ? (
+                <div className="flex justify-center items-center h-40">
+                  <Loader2 className="animate-spin w-6 h-6 text-[#D96E36]" />
+                </div>
+              ) : error ? (
+                <div className="text-red-500 text-center">{error}</div>
+              ) : activeSection === "Resumes" ? (
+                jobs.length === 0 ? (
+                <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No jobs found. Upload a job description to get started!</Card>
+              ) : (
+                jobs.map(job => (
+                  <Card key={job.id} className="flex flex-col md:flex-row md:items-center justify-between border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition">
+                    <div className="flex-1 flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-lg text-gray-900">{job.title}</span>
+                        {job.company && <span className="text-gray-600 text-base font-medium">- {job.company}</span>}
+                      </div>
+                      <div className="flex gap-4 text-xs text-gray-500 mt-1">
+                        <span>{formatDate(job.created_at)}</span>
+                      </div>
                     </div>
-                    <div className="flex gap-4 text-xs text-gray-500 mt-1">
-                      <span>{formatDate(job.created_at)}</span>
+                    <div className="flex flex-col md:items-end gap-2 mt-4 md:mt-0">
+                      <Link href={`/preview?job_id=${job.id}`} passHref legacyBehavior>
+                        <Button variant="outline" className="border-[#D96E36] text-[#D96E36] hover:bg-[#D96E36]/10 w-full sm:w-auto">Preview</Button>
+                      </Link>
                     </div>
+                  </Card>
+                ))
+                )
+              ) : activeSection === "Projects" ? (
+                <div>
+                  <div className="flex items-center mb-4">
+                    <h2 className="text-2xl font-bold mr-4">Projects</h2>
+                    <Button size="sm" className="bg-[#D96E36] text-white ml-auto" onClick={() => setAddingProject(true)}>+ Add Project</Button>
                   </div>
-                  <div className="flex flex-col md:items-end gap-2 mt-4 md:mt-0">
-                    <Link href={`/preview?job_id=${job.id}`} passHref legacyBehavior>
-                      <Button variant="outline" className="border-[#D96E36] text-[#D96E36] hover:bg-[#D96E36]/10 w-full sm:w-auto">Preview</Button>
-                    </Link>
+                  {addingProject && (
+                    <Card className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
+                      <div className="flex flex-col gap-2">
+                        <input
+                          className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                          value={newProject.name}
+                          onChange={e => setNewProject(p => ({ ...p, name: e.target.value }))}
+                          placeholder="Project Name"
+                        />
+                        <textarea
+                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                          value={newProject.description}
+                          onChange={e => setNewProject(p => ({ ...p, description: e.target.value }))}
+                          placeholder="Description"
+                          rows={3}
+                        />
+                        <div className="flex gap-2 mt-2">
+                          <Button size="sm" className="bg-[#D96E36] text-white" onClick={handleAddProject}>Save</Button>
+                          <Button size="sm" variant="outline" onClick={() => { setAddingProject(false); setNewProject({ name: '', description: '' }); }}>Cancel</Button>
+                        </div>
+                      </div>
+                    </Card>
+                  )}
+                  {projects.length === 0 ? (
+                    <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No projects found.</Card>
+                  ) : (
+                    projects.map(project => {
+                      const expanded = expandedProject === project.id;
+                      const editing = editingProject === project.id;
+                      return (
+                        <Card key={project.id} className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
+                          <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedProject(expanded ? null : project.id)}>
+                            <div className="font-semibold text-lg text-gray-900 mb-1 flex items-center">
+                              {expanded ? <ChevronDown className="w-5 h-5 mr-2" /> : <ChevronRight className="w-5 h-5 mr-2" />}
+                              {project.name}
+                              {project.company && <span className="text-base text-gray-600 ml-2">- {project.company}</span>}
+                            </div>
+                          </div>
+                          {expanded && (
+                            <div className="mt-2">
+                              {editing ? (
+                                <div className="flex flex-col gap-2">
+                                  <input
+                                    className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                                    value={projectEdits.name || ""}
+                                    onChange={e => handleProjectEdit(project.id, "name", e.target.value)}
+                                    placeholder="Project Name"
+                                  />
+                                  <textarea
+                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                                    value={projectEdits.description || ""}
+                                    onChange={e => handleProjectEdit(project.id, "description", e.target.value)}
+                                    placeholder="Description"
+                                    rows={3}
+                                  />
+                                  <div className="flex gap-2 mt-2">
+                                    <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => saveProjectEdit(project.id)}>Save</Button>
+                                    <Button size="sm" variant="outline" onClick={cancelProjectEdit}>Cancel</Button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div>
+                                  <div className="font-semibold text-base mb-1 bg-[#FCF9F4] rounded p-2">{project.name}</div>
+                                  {project.company && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{project.company}</div>}
+                                  {project.duration && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{project.duration}</div>}
+                                  <div className="bg-[#FCF9F4] rounded p-2 mb-1 whitespace-pre-line">{project.description}</div>
+                                  <div className="flex gap-2 mt-2">
+                                    <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => startProjectEdit(project)}>Edit</Button>
+                                    <Button size="sm" className="bg-[#6B3F1D] text-white" onClick={() => setDeleteModal({ type: 'project', id: project.id })}>Delete</Button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </Card>
+                      );
+                    })
+                  )}
+                </div>
+              ) : activeSection === "Experiences" ? (
+                <div>
+                  <div className="flex items-center mb-4">
+                    <h2 className="text-2xl font-bold mr-4">Experiences</h2>
+                    <Button size="sm" className="bg-[#D96E36] text-white ml-auto" onClick={() => setAddingExperience(true)}>+ Add Experience</Button>
                   </div>
-                </Card>
-              ))
-              )
-            ) : activeSection === "Projects" ? (
-              <div>
-                <div className="flex items-center mb-4">
-                  <h2 className="text-2xl font-bold mr-4">Projects</h2>
-                  <Button size="sm" className="bg-[#D96E36] text-white ml-auto" onClick={() => setAddingProject(true)}>+ Add Project</Button>
-                </div>
-                {addingProject && (
-                  <Card className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
-                    <div className="flex flex-col gap-2">
-                      <input
-                        className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                        value={newProject.name}
-                        onChange={e => setNewProject(p => ({ ...p, name: e.target.value }))}
-                        placeholder="Project Name"
-                      />
-                      <textarea
-                        className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                        value={newProject.description}
-                        onChange={e => setNewProject(p => ({ ...p, description: e.target.value }))}
-                        placeholder="Description"
-                        rows={3}
-                      />
-                      <div className="flex gap-2 mt-2">
-                        <Button size="sm" className="bg-[#D96E36] text-white" onClick={handleAddProject}>Save</Button>
-                        <Button size="sm" variant="outline" onClick={() => { setAddingProject(false); setNewProject({ name: '', description: '' }); }}>Cancel</Button>
-                      </div>
-                    </div>
-                  </Card>
-                )}
-                {projects.length === 0 ? (
-                  <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No projects found.</Card>
-                ) : (
-                  projects.map(project => {
-                    const expanded = expandedProject === project.id;
-                    const editing = editingProject === project.id;
-                    return (
-                      <Card key={project.id} className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
-                        <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedProject(expanded ? null : project.id)}>
-                          <div className="font-semibold text-lg text-gray-900 mb-1 flex items-center">
-                            {expanded ? <ChevronDown className="w-5 h-5 mr-2" /> : <ChevronRight className="w-5 h-5 mr-2" />}
-                            {project.name}
-                            {project.company && <span className="text-base text-gray-600 ml-2">- {project.company}</span>}
-                          </div>
+                  {addingExperience && (
+                    <Card className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
+                      <div className="flex flex-col gap-2">
+                        <input
+                          className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                          value={newExperience.position}
+                          onChange={e => setNewExperience(exp => ({ ...exp, position: e.target.value }))}
+                          placeholder="Position"
+                        />
+                        <input
+                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                          value={newExperience.company}
+                          onChange={e => setNewExperience(exp => ({ ...exp, company: e.target.value }))}
+                          placeholder="Company"
+                        />
+                        <input
+                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                          value={newExperience.duration}
+                          onChange={e => setNewExperience(exp => ({ ...exp, duration: e.target.value }))}
+                          placeholder="Duration"
+                        />
+                        <textarea
+                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                          value={newExperience.description}
+                          onChange={e => setNewExperience(exp => ({ ...exp, description: e.target.value }))}
+                          placeholder="Description"
+                          rows={3}
+                        />
+                        <div className="flex gap-2 mt-2">
+                          <Button size="sm" className="bg-[#D96E36] text-white" onClick={handleAddExperience}>Save</Button>
+                          <Button size="sm" variant="outline" onClick={() => { setAddingExperience(false); setNewExperience({ position: '', company: '', duration: '', description: '' }); }}>Cancel</Button>
                         </div>
-                        {expanded && (
-                          <div className="mt-2">
-                            {editing ? (
-                              <div className="flex flex-col gap-2">
-                                <input
-                                  className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                  value={projectEdits.name || ""}
-                                  onChange={e => handleProjectEdit(project.id, "name", e.target.value)}
-                                  placeholder="Project Name"
-                                />
-                                <textarea
-                                  className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                  value={projectEdits.description || ""}
-                                  onChange={e => handleProjectEdit(project.id, "description", e.target.value)}
-                                  placeholder="Description"
-                                  rows={3}
-                                />
-                                <div className="flex gap-2 mt-2">
-                                  <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => saveProjectEdit(project.id)}>Save</Button>
-                                  <Button size="sm" variant="outline" onClick={cancelProjectEdit}>Cancel</Button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div>
-                                <div className="font-semibold text-base mb-1 bg-[#FCF9F4] rounded p-2">{project.name}</div>
-                                {project.company && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{project.company}</div>}
-                                {project.duration && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{project.duration}</div>}
-                                <div className="bg-[#FCF9F4] rounded p-2 mb-1 whitespace-pre-line">{project.description}</div>
-                                <div className="flex gap-2 mt-2">
-                                  <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => startProjectEdit(project)}>Edit</Button>
-                                  <Button size="sm" className="bg-[#6B3F1D] text-white" onClick={() => setDeleteModal({ type: 'project', id: project.id })}>Delete</Button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </Card>
-                    );
-                  })
-                )}
-              </div>
-            ) : activeSection === "Experiences" ? (
-              <div>
-                <div className="flex items-center mb-4">
-                  <h2 className="text-2xl font-bold mr-4">Experiences</h2>
-                  <Button size="sm" className="bg-[#D96E36] text-white ml-auto" onClick={() => setAddingExperience(true)}>+ Add Experience</Button>
-                </div>
-                {addingExperience && (
-                  <Card className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
-                    <div className="flex flex-col gap-2">
-                      <input
-                        className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                        value={newExperience.position}
-                        onChange={e => setNewExperience(exp => ({ ...exp, position: e.target.value }))}
-                        placeholder="Position"
-                      />
-                      <input
-                        className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                        value={newExperience.company}
-                        onChange={e => setNewExperience(exp => ({ ...exp, company: e.target.value }))}
-                        placeholder="Company"
-                      />
-                      <input
-                        className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                        value={newExperience.duration}
-                        onChange={e => setNewExperience(exp => ({ ...exp, duration: e.target.value }))}
-                        placeholder="Duration"
-                      />
-                      <textarea
-                        className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                        value={newExperience.description}
-                        onChange={e => setNewExperience(exp => ({ ...exp, description: e.target.value }))}
-                        placeholder="Description"
-                        rows={3}
-                      />
-                      <div className="flex gap-2 mt-2">
-                        <Button size="sm" className="bg-[#D96E36] text-white" onClick={handleAddExperience}>Save</Button>
-                        <Button size="sm" variant="outline" onClick={() => { setAddingExperience(false); setNewExperience({ position: '', company: '', duration: '', description: '' }); }}>Cancel</Button>
                       </div>
-                    </div>
-                  </Card>
-                )}
-                {experiences.length === 0 ? (
-                  <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No experiences found.</Card>
-                ) : (
-                  experiences.map(exp => {
-                    const expanded = expandedExperience === exp.id;
-                    const editing = editingExperience === exp.id;
-                    return (
-                      <Card key={exp.id} className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
-                        <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedExperience(expanded ? null : exp.id)}>
-                          <div className="font-semibold text-lg text-gray-900 mb-1 flex items-center">
-                            {expanded ? <ChevronDown className="w-5 h-5 mr-2" /> : <ChevronRight className="w-5 h-5 mr-2" />}
-                            {exp.position} {exp.company && <span className="text-base text-gray-600">- {exp.company}</span>}
+                    </Card>
+                  )}
+                  {experiences.length === 0 ? (
+                    <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No experiences found.</Card>
+                  ) : (
+                    experiences.map(exp => {
+                      const expanded = expandedExperience === exp.id;
+                      const editing = editingExperience === exp.id;
+                      return (
+                        <Card key={exp.id} className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
+                          <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedExperience(expanded ? null : exp.id)}>
+                            <div className="font-semibold text-lg text-gray-900 mb-1 flex items-center">
+                              {expanded ? <ChevronDown className="w-5 h-5 mr-2" /> : <ChevronRight className="w-5 h-5 mr-2" />}
+                              {exp.position} {exp.company && <span className="text-base text-gray-600">- {exp.company}</span>}
+                            </div>
+                            {!editing && <Button variant="outline" size="sm" onClick={e => { e.stopPropagation(); startExperienceEdit(exp); }}>Edit</Button>}
                           </div>
-                          {!editing && <Button variant="outline" size="sm" onClick={e => { e.stopPropagation(); startExperienceEdit(exp); }}>Edit</Button>}
-                        </div>
-                        {expanded && (
-                          <div className="mt-2">
-                            {editing ? (
-                              <div className="flex flex-col gap-2">
-                                <input
-                                  className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                  value={experienceEdits.position || ""}
-                                  onChange={e => handleExperienceEdit(exp.id, "position", e.target.value)}
-                                  placeholder="Position"
-                                />
-                                <input
-                                  className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                  value={experienceEdits.company || ""}
-                                  onChange={e => handleExperienceEdit(exp.id, "company", e.target.value)}
-                                  placeholder="Company"
-                                />
-                                <input
-                                  className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                  value={experienceEdits.duration || ""}
-                                  onChange={e => handleExperienceEdit(exp.id, "duration", e.target.value)}
-                                  placeholder="Duration"
-                                />
-                                <textarea
-                                  className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                  value={experienceEdits.description || ""}
-                                  onChange={e => handleExperienceEdit(exp.id, "description", e.target.value)}
-                                  placeholder="Description"
-                                  rows={3}
-                                />
-                                <div className="flex gap-2 mt-2">
-                                  <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => saveExperienceEdit(exp.id)}>Save</Button>
-                                  <Button size="sm" variant="outline" onClick={cancelExperienceEdit}>Cancel</Button>
+                          {expanded && (
+                            <div className="mt-2">
+                              {editing ? (
+                                <div className="flex flex-col gap-2">
+                                  <input
+                                    className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                                    value={experienceEdits.position || ""}
+                                    onChange={e => handleExperienceEdit(exp.id, "position", e.target.value)}
+                                    placeholder="Position"
+                                  />
+                                  <input
+                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                                    value={experienceEdits.company || ""}
+                                    onChange={e => handleExperienceEdit(exp.id, "company", e.target.value)}
+                                    placeholder="Company"
+                                  />
+                                  <input
+                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                                    value={experienceEdits.duration || ""}
+                                    onChange={e => handleExperienceEdit(exp.id, "duration", e.target.value)}
+                                    placeholder="Duration"
+                                  />
+                                  <textarea
+                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                                    value={experienceEdits.description || ""}
+                                    onChange={e => handleExperienceEdit(exp.id, "description", e.target.value)}
+                                    placeholder="Description"
+                                    rows={3}
+                                  />
+                                  <div className="flex gap-2 mt-2">
+                                    <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => saveExperienceEdit(exp.id)}>Save</Button>
+                                    <Button size="sm" variant="outline" onClick={cancelExperienceEdit}>Cancel</Button>
+                                  </div>
                                 </div>
-                              </div>
-                            ) : (
-                              <div>
-                                <div className="font-semibold text-base mb-1 bg-[#FCF9F4] rounded p-2">{exp.position}</div>
-                                {exp.company && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{exp.company}</div>}
-                                {exp.duration && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{exp.duration}</div>}
-                                <div className="bg-[#FCF9F4] rounded p-2 mb-1 whitespace-pre-line">{exp.description}</div>
-                                <div className="flex gap-2 mt-2">
-                                  <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => startExperienceEdit(exp)}>Edit</Button>
-                                  <Button size="sm" className="bg-[#6B3F1D] text-white" onClick={() => setDeleteModal({ type: 'experience', id: exp.id })}>Delete</Button>
+                              ) : (
+                                <div>
+                                  <div className="font-semibold text-base mb-1 bg-[#FCF9F4] rounded p-2">{exp.position}</div>
+                                  {exp.company && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{exp.company}</div>}
+                                  {exp.duration && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{exp.duration}</div>}
+                                  <div className="bg-[#FCF9F4] rounded p-2 mb-1 whitespace-pre-line">{exp.description}</div>
+                                  <div className="flex gap-2 mt-2">
+                                    <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => startExperienceEdit(exp)}>Edit</Button>
+                                    <Button size="sm" className="bg-[#6B3F1D] text-white" onClick={() => setDeleteModal({ type: 'experience', id: exp.id })}>Delete</Button>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </Card>
-                    );
-                  })
-                )}
-              </div>
-            ) : activeSection === "Education" ? (
-              <div>
-                <div className="flex items-center mb-4">
-                  <h2 className="text-2xl font-bold mr-4">Education</h2>
-                  <Button size="sm" className="bg-[#D96E36] text-white ml-auto" onClick={() => setAddingEducation(true)}>+ Add Education</Button>
+                              )}
+                            </div>
+                          )}
+                        </Card>
+                      );
+                    })
+                  )}
                 </div>
-                {addingEducation && (
-                  <Card className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
-                    <div className="flex flex-col gap-2">
-                      <input
-                        className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                        value={newEducation.degree}
-                        onChange={e => setNewEducation(ed => ({ ...ed, degree: e.target.value }))}
-                        placeholder="Degree"
-                      />
-                      <input
-                        className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                        value={newEducation.institution}
-                        onChange={e => setNewEducation(ed => ({ ...ed, institution: e.target.value }))}
-                        placeholder="Institution"
-                      />
-                      <input
-                        className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                        value={newEducation.year}
-                        onChange={e => setNewEducation(ed => ({ ...ed, year: e.target.value }))}
-                        placeholder="Year"
-                      />
-                      <textarea
-                        className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                        value={newEducation.description}
-                        onChange={e => setNewEducation(ed => ({ ...ed, description: e.target.value }))}
-                        placeholder="Description"
-                        rows={3}
-                      />
-                      <div className="flex gap-2 mt-2">
-                        <Button size="sm" className="bg-[#D96E36] text-white" onClick={handleAddEducation}>Save</Button>
-                        <Button size="sm" variant="outline" onClick={() => { setAddingEducation(false); setNewEducation({ degree: '', institution: '', year: '', description: '' }); }}>Cancel</Button>
+              ) : activeSection === "Education" ? (
+                <div>
+                  <div className="flex items-center mb-4">
+                    <h2 className="text-2xl font-bold mr-4">Education</h2>
+                    <Button size="sm" className="bg-[#D96E36] text-white ml-auto" onClick={() => setAddingEducation(true)}>+ Add Education</Button>
+                  </div>
+                  {addingEducation && (
+                    <Card className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
+                      <div className="flex flex-col gap-2">
+                        <input
+                          className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                          value={newEducation.degree}
+                          onChange={e => setNewEducation(ed => ({ ...ed, degree: e.target.value }))}
+                          placeholder="Degree"
+                        />
+                        <input
+                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                          value={newEducation.institution}
+                          onChange={e => setNewEducation(ed => ({ ...ed, institution: e.target.value }))}
+                          placeholder="Institution"
+                        />
+                        <input
+                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                          value={newEducation.year}
+                          onChange={e => setNewEducation(ed => ({ ...ed, year: e.target.value }))}
+                          placeholder="Year"
+                        />
+                        <textarea
+                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                          value={newEducation.description}
+                          onChange={e => setNewEducation(ed => ({ ...ed, description: e.target.value }))}
+                          placeholder="Description"
+                          rows={3}
+                        />
+                        <div className="flex gap-2 mt-2">
+                          <Button size="sm" className="bg-[#D96E36] text-white" onClick={handleAddEducation}>Save</Button>
+                          <Button size="sm" variant="outline" onClick={() => { setAddingEducation(false); setNewEducation({ degree: '', institution: '', year: '', description: '' }); }}>Cancel</Button>
+                        </div>
                       </div>
-                    </div>
-                  </Card>
-                )}
-                {education.length === 0 ? (
-                  <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No education found.</Card>
-                ) : (
-                  education.map(edu => {
-                    const expanded = expandedEducation === edu.id;
-                    const editing = editingEducation === edu.id;
-                    return (
-                      <Card key={edu.id} className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
-                        <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedEducation(expanded ? null : edu.id)}>
-                          <div className="font-semibold text-lg text-gray-900 mb-1 flex items-center">
-                            {expanded ? <ChevronDown className="w-5 h-5 mr-2" /> : <ChevronRight className="w-5 h-5 mr-2" />}
-                            {edu.degree} {edu.institution && <span className="text-base text-gray-600 ml-2">- {edu.institution}</span>}
+                    </Card>
+                  )}
+                  {education.length === 0 ? (
+                    <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No education found.</Card>
+                  ) : (
+                    education.map(edu => {
+                      const expanded = expandedEducation === edu.id;
+                      const editing = editingEducation === edu.id;
+                      return (
+                        <Card key={edu.id} className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
+                          <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedEducation(expanded ? null : edu.id)}>
+                            <div className="font-semibold text-lg text-gray-900 mb-1 flex items-center">
+                              {expanded ? <ChevronDown className="w-5 h-5 mr-2" /> : <ChevronRight className="w-5 h-5 mr-2" />}
+                              {edu.degree} {edu.institution && <span className="text-base text-gray-600 ml-2">- {edu.institution}</span>}
+                            </div>
                           </div>
-                        </div>
-                        {expanded && (
-                          <div className="mt-2">
-                            {editing ? (
-                              <div className="flex flex-col gap-2">
-                                <input
-                                  className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                  value={educationEdits.degree || ''}
-                                  onChange={e => handleEducationEdit(edu.id, 'degree', e.target.value)}
-                                  placeholder="Degree"
-                                />
-                                <input
-                                  className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                  value={educationEdits.institution || ''}
-                                  onChange={e => handleEducationEdit(edu.id, 'institution', e.target.value)}
-                                  placeholder="Institution"
-                                />
-                                <input
-                                  className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                  value={educationEdits.year || ''}
-                                  onChange={e => handleEducationEdit(edu.id, 'year', e.target.value)}
-                                  placeholder="Year"
-                                />
-                                <textarea
-                                  className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                  value={educationEdits.description || ''}
-                                  onChange={e => handleEducationEdit(edu.id, 'description', e.target.value)}
-                                  placeholder="Description"
-                                  rows={3}
-                                />
-                                <div className="flex gap-2 mt-2">
-                                  <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => saveEducationEdit(edu.id)}>Save</Button>
-                                  <Button size="sm" variant="outline" onClick={cancelEducationEdit}>Cancel</Button>
+                          {expanded && (
+                            <div className="mt-2">
+                              {editing ? (
+                                <div className="flex flex-col gap-2">
+                                  <input
+                                    className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                                    value={educationEdits.degree || ''}
+                                    onChange={e => handleEducationEdit(edu.id, 'degree', e.target.value)}
+                                    placeholder="Degree"
+                                  />
+                                  <input
+                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                                    value={educationEdits.institution || ''}
+                                    onChange={e => handleEducationEdit(edu.id, 'institution', e.target.value)}
+                                    placeholder="Institution"
+                                  />
+                                  <input
+                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                                    value={educationEdits.year || ''}
+                                    onChange={e => handleEducationEdit(edu.id, 'year', e.target.value)}
+                                    placeholder="Year"
+                                  />
+                                  <textarea
+                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                                    value={educationEdits.description || ''}
+                                    onChange={e => handleEducationEdit(edu.id, 'description', e.target.value)}
+                                    placeholder="Description"
+                                    rows={3}
+                                  />
+                                  <div className="flex gap-2 mt-2">
+                                    <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => saveEducationEdit(edu.id)}>Save</Button>
+                                    <Button size="sm" variant="outline" onClick={cancelEducationEdit}>Cancel</Button>
+                                  </div>
                                 </div>
-                              </div>
-                            ) : (
-                              <div>
-                                <div className="font-semibold text-base mb-1 bg-[#FCF9F4] rounded p-2">{edu.degree}</div>
-                                {edu.institution && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{edu.institution}</div>}
-                                {edu.year && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{edu.year}</div>}
-                                <div className="bg-[#FCF9F4] rounded p-2 mb-1 whitespace-pre-line">{edu.description}</div>
-                                <div className="flex gap-2 mt-2">
-                                  <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => startEducationEdit(edu)}>Edit</Button>
-                                  <Button size="sm" className="bg-[#6B3F1D] text-white" onClick={() => setDeleteModal({ type: 'education', id: edu.id })}>Delete</Button>
+                              ) : (
+                                <div>
+                                  <div className="font-semibold text-base mb-1 bg-[#FCF9F4] rounded p-2">{edu.degree}</div>
+                                  {edu.institution && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{edu.institution}</div>}
+                                  {edu.year && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{edu.year}</div>}
+                                  <div className="bg-[#FCF9F4] rounded p-2 mb-1 whitespace-pre-line">{edu.description}</div>
+                                  <div className="flex gap-2 mt-2">
+                                    <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => startEducationEdit(edu)}>Edit</Button>
+                                    <Button size="sm" className="bg-[#6B3F1D] text-white" onClick={() => setDeleteModal({ type: 'education', id: edu.id })}>Delete</Button>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </Card>
-                    );
-                  })
-                )}
-              </div>
-            ) : activeSection === "Skills" ? (
-              <div>
-                <div className="flex items-center mb-4">
-                  <h2 className="text-2xl font-bold mr-4">Skills</h2>
+                              )}
+                            </div>
+                          )}
+                        </Card>
+                      );
+                    })
+                  )}
                 </div>
-                <div className="flex gap-2 mb-4">
-                  <input
-                    className="border border-[#ece7df] rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                    placeholder="Add a skill..."
-                    value={newSkill}
-                    onChange={e => setNewSkill(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') handleAddSkill(); }}
-                  />
-                  <Button
-                    className="bg-[#D96E36] text-white px-4 py-2 rounded font-semibold"
-                    onClick={handleAddSkill}
-                    disabled={!newSkill.trim()}
-                  >
-                    Add
-                  </Button>
-                </div>
-                {skills.length === 0 ? (
-                  <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No skills found.</Card>
-                ) : (
-                  <Card className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 p-6 border border-[#ece7df] bg-white">
-                    {skills.map(skill => (
-                      <span
-                        key={skill.id}
-                        className="relative bg-[#FCF9F4] border border-[#ece7df] rounded px-3 py-2 text-sm font-medium text-[#222] flex items-center group transition-shadow hover:shadow-sm"
-                      >
-                        {skill.name}
-                        <button
-                          className="ml-2 text-[#D96E36] hover:text-red-600 text-xs font-bold opacity-60 group-hover:opacity-100 transition-opacity absolute top-1 right-1"
-                          title="Remove skill"
-                          onClick={() => handleRemoveSkill(skill.id)}
+              ) : activeSection === "Skills" ? (
+                <div>
+                  <div className="flex items-center mb-4">
+                    <h2 className="text-2xl font-bold mr-4">Skills</h2>
+                  </div>
+                  <div className="flex gap-2 mb-4">
+                    <input
+                      className="border border-[#ece7df] rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
+                      placeholder="Add a skill..."
+                      value={newSkill}
+                      onChange={e => setNewSkill(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') handleAddSkill(); }}
+                    />
+                    <Button
+                      className="bg-[#D96E36] text-white px-4 py-2 rounded font-semibold"
+                      onClick={handleAddSkill}
+                      disabled={!newSkill.trim()}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                  {skills.length === 0 ? (
+                    <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No skills found.</Card>
+                  ) : (
+                    <Card className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 p-6 border border-[#ece7df] bg-white">
+                      {skills.map(skill => (
+                        <span
+                          key={skill.id}
+                          className="relative bg-[#FCF9F4] border border-[#ece7df] rounded px-3 py-2 text-sm font-medium text-[#222] flex items-center group transition-shadow hover:shadow-sm"
                         >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </Card>
-                )}
-              </div>
-            ) : null}
-          </div>
-          {/* Confirmation Modal */}
-          <Dialog open={!!deleteModal.type} onOpenChange={open => { if (!open) setDeleteModal({ type: '', id: null }); }}>
-            <DialogContent>
-              <DialogTitle>Delete {deleteModal.type.charAt(0).toUpperCase() + deleteModal.type.slice(1)}</DialogTitle>
-              <DialogDescription>Are you sure you want to delete this {deleteModal.type}? This action cannot be undone.</DialogDescription>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setDeleteModal({ type: '', id: null })}>Cancel</Button>
-                <Button
-                  className="bg-[#D96E36] text-white"
-                  onClick={() => {
-                    if (deleteModal.id !== null) handleDelete(deleteModal.type, deleteModal.id);
-                  }}
-                >
-                  Delete
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </main>
-      </div>
-    </SidebarProvider>
+                          {skill.name}
+                          <button
+                            className="ml-2 text-[#D96E36] hover:text-red-600 text-xs font-bold opacity-60 group-hover:opacity-100 transition-opacity absolute top-1 right-1"
+                            title="Remove skill"
+                            onClick={() => handleRemoveSkill(skill.id)}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </Card>
+                  )}
+                </div>
+              ) : null}
+            </div>
+            {/* Confirmation Modal */}
+            <Dialog open={!!deleteModal.type} onOpenChange={open => { if (!open) setDeleteModal({ type: '', id: null }); }}>
+              <DialogContent>
+                <DialogTitle>Delete {deleteModal.type.charAt(0).toUpperCase() + deleteModal.type.slice(1)}</DialogTitle>
+                <DialogDescription>Are you sure you want to delete this {deleteModal.type}? This action cannot be undone.</DialogDescription>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setDeleteModal({ type: '', id: null })}>Cancel</Button>
+                  <Button
+                    className="bg-[#D96E36] text-white"
+                    onClick={() => {
+                      if (deleteModal.id !== null) handleDelete(deleteModal.type, deleteModal.id);
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </main>
+        </div>
+      </SidebarProvider>
+      <Footer />
+    </div>
   );
 } 
