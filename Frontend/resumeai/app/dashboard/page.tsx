@@ -375,8 +375,14 @@ export default function DashboardPage() {
                 {activeSection === "Resumes" && (
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                   <Button className="bg-[#D96E36] hover:bg-[#D96E36]/80 w-full sm:w-auto">Upload Resume</Button>
-                  <Button variant="outline" className="w-full sm:w-auto">Upload Job Description</Button>
-                  <Button variant="outline" className="w-full sm:w-auto">Add Data</Button>
+                  {/* This button links to the upload job description page */}
+                  <Link href="/upload-job">
+                    <Button variant="outline" className="w-full sm:w-auto">Upload Job Description</Button>
+                  </Link>
+                  {/* This button links to the manual upload page */}
+                  <Link href="/manual-entry">
+                    <Button variant="outline" className="w-full sm:w-auto">Add Data</Button>
+                  </Link>
                 </div>
                 )}
               </div>

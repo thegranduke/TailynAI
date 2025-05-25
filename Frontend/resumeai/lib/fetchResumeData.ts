@@ -24,8 +24,22 @@ export async function fetchResumeData(user_id: string, job_id: string) {
   return {
     personal: profileRes.data || {},
     skills: skillsRes.data || [],
-    projects: projectsRes.data?.filter((p: any) => matchedProjectIds.length === 0 || matchedProjectIds.includes(p.id)) || [],
-    experiences: expRes.data?.filter((e: any) => matchedExperienceIds.length === 0 || matchedExperienceIds.includes(e.id)) || [],
+    projects: (projectsRes.data?.filter((p: any) => matchedProjectIds.length === 0 || matchedProjectIds.includes(p.id)) || []).map((project: any) => {
+      // Find improved description for this project
+      const match = projMatchRes.data?.find((m: any) => m.project_id === project.id);
+      return {
+        ...project,
+        description: match?.improved_description || project.description,
+      };
+    }),
+    experiences: (expRes.data?.filter((e: any) => matchedExperienceIds.length === 0 || matchedExperienceIds.includes(e.id)) || []).map((exp: any) => {
+      // Find improved description for this experience
+      const match = expMatchRes.data?.find((m: any) => m.experience_id === exp.id);
+      return {
+        ...exp,
+        description: match?.improved_description || exp.description,
+      };
+    }),
     education: educationRes.data || []
   };
 }

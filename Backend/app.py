@@ -234,7 +234,7 @@ Return a JSON object with:
 - matched_skill_ids: list of skill ids that best match
 - matched_project_ids: list of project ids that best match
 - matched_experience_ids: list of experience ids that best match
-- improved_descriptions: {{ id: updated_description }} for projects and experiences
+- improved_descriptions: {{ id: updated_description }} for projects and experiences these should follow the XYZ format: What was done , what it achieved , how it was done . Be concise and concrete but natural and conversational. and newlines should be separated by \\n.
 
 Ensure this would be the best combination of skills, projects, and experiences for the user to match the job description and company.
 
