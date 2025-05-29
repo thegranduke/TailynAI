@@ -1,38 +1,88 @@
-Style Guide Outline
-Color Palette
-Background: #FCF9F4 (main), #FFFEFB (sidebar), #ece7df (borders)
-Accent: #D96E36 (primary button, focus ring)
-Text: #222 (main), #666 (secondary), #D96E36 (accent)
+Background: #FCF9F4 (main), #FFFEFB (sidebar/secondary areas)
+Borders: #ece7df (subtle borders and dividers)
+Accent: #D96E36 (primary actions, links, focus states)
+Text: #222 (primary text), #666 (secondary text), #D96E36 (accent text)
+
+Layout & Structure
+
+Container Max Width: max-w-7xl for main content, max-w-4xl for forms
+Spacing System: Use space-y-6 for vertical rhythm, gap-4 or gap-6 for grids
+Content Padding: p-6 for cards, p-8 for main sections
+Page Margins: mx-auto px-4 sm:px-6 lg:px-8
+
 Cards & Containers
-Use bg-white or bg-[#FCF9F4]
-Border: border border-[#ece7df]
-No box-shadow: shadow-none
-Rounded corners: rounded or rounded-lg
-Generous padding: p-4, p-6
-Inputs & Textareas
-Border: border border-[#ece7df]
-Background: bg-[#FCF9F4]
-Rounded: rounded
-Focus: focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30
-Padding: p-2
-Buttons
-Primary: bg-[#D96E36] hover:bg-[#D96E36]/90 text-white
-Outline: border border-[#ece7df] bg-white text-[#D96E36]
-Ghost: bg-transparent text-[#D96E36]
-Rounded: rounded
-Font: font-semibold or font-medium
-Skill Tags & Pills
-Background: bg-[#FCF9F4]
-Border: border border-[#ece7df]
-Rounded: rounded
-Padding: px-2 py-1
-Font: text-sm font-medium
+cssBase Card: bg-white border border-[#ece7df] rounded-lg p-6
+Hover State: hover:border-[#D96E36]/30 transition-colors
+Alternative: bg-[#FFFEFB] for secondary cards
+No Shadows: Clean border-only approach
 Typography
-Headings: font-bold or font-semibold, tight tracking, generous line height
-Body: text-base or text-sm, text-gray-700 or text-gray-500 for secondary
-Spacing
-Use gap-4, gap-6, or mb-4 for vertical rhythm
-Use max-w-md or max-w-2xl for form/card width
-Other
-Use consistent focus and hover states
-Avoid visual clutter; keep UI elements minimal and functional
+
+Headings:
+
+H1: text-2xl font-semibold text-[#222] tracking-tight
+H2: text-xl font-semibold text-[#222]
+H3: text-lg font-medium text-[#222]
+
+
+Body Text: text-sm text-[#666] leading-relaxed
+Accent Text: text-[#D96E36]
+Line Height: Use leading-relaxed for readability
+
+Buttons
+
+Primary: bg-[#D96E36] hover:bg-[#D96E36]/90 text-white font-medium px-4 py-2 rounded-md transition-colors
+Secondary: bg-white hover:bg-[#FFFEFB] text-[#222] border border-[#ece7df] font-medium px-4 py-2 rounded-md transition-colors hover:border-[#D96E36]/30
+Ghost: text-[#D96E36] hover:bg-[#D96E36]/5 font-medium px-4 py-2 rounded-md transition-colors
+
+Form Elements
+
+Input Base: bg-[#FCF9F4] border border-[#ece7df] rounded-md px-3 py-2 text-sm text-[#222] placeholder:text-[#666]
+Focus State: focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30 focus:border-[#D96E36]
+Disabled: disabled:bg-[#FFFEFB] disabled:text-[#666] disabled:cursor-not-allowed
+
+Tags & Pills
+
+Default: bg-[#FCF9F4] text-[#666] border border-[#ece7df] px-2.5 py-1 rounded-full text-xs font-medium
+Active/Selected: bg-[#D96E36]/10 text-[#D96E36] border border-[#D96E36]/20
+
+Tables
+
+Header: bg-[#FFFEFB] text-[#222] font-medium text-sm border-b border-[#ece7df]
+Rows: text-sm text-[#666] border-b border-[#ece7df]/50 hover:bg-[#FFFEFB]/50
+Padding: px-6 py-4 for cells
+
+Interactive States
+
+Hover: Subtle background changes (hover:bg-[#FFFEFB]) or border accent (hover:border-[#D96E36]/30)
+Focus: Ring with brand color at 30% opacity
+Active: Background tint with accent color
+Disabled: Muted appearance with reduced contrast
+
+Navigation
+
+Active Link: text-[#D96E36] bg-[#D96E36]/5 font-medium
+Inactive Link: text-[#666] hover:text-[#222] hover:bg-[#FFFEFB]
+Sidebar: bg-[#FFFEFB] with minimal contrast
+
+Notion-Style Elements
+
+Page Background: Always bg-[#FCF9F4]
+Content Blocks: bg-white with border-[#ece7df]
+Sidebar: bg-[#FFFEFB] for secondary navigation
+Dividers: border-[#ece7df] for clean separation
+
+shadcn/ui Influence
+
+Clean Typography: Consistent font weights and sizes
+Subtle Interactions: Gentle hover states and transitions
+Border-First Design: No shadows, clean borders
+Consistent Spacing: Logical padding and margin system
+Accessible Focus States: Clear focus indicators
+
+Design Principles
+
+Warm Minimalism: Use the warm #FCF9F4 background for comfort
+Clean Borders: Rely on #ece7df borders instead of shadows
+Consistent Accent: Use #D96E36 sparingly for key actions
+Readable Text: Strong contrast with #222 and #666
+Generous Spacing: Let content breathe with proper whitespace

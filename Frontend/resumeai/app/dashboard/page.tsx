@@ -108,28 +108,27 @@ function SidebarAccountFooter() {
 
 function DashboardSidebar({ setActiveSection, activeSection }: { setActiveSection: (section: string) => void, activeSection: string }) {
   return (
-    <Sidebar className="border-r border-[#ece7df] bg-white">
-      <SidebarContent className="pt-12">
-        <SidebarGroup>
-          <SidebarGroupLabel>Tailyn</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {sidebarLinks.map(link => (
-                <SidebarMenuItem key={link.label}>
-                  <SidebarMenuButton asChild>
-                    <button
-                      className={`w-full text-left ${activeSection === link.section ? 'text-[#D96E36] font-bold' : ''}`}
-                      onClick={() => setActiveSection(link.section)}
-                    >
-                      {link.label}
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+    <Sidebar className="border-r border-[#ece7df] bg-[#FFFEFB] w-64 fixed h-screen">
+      <div className="p-6">
+        <Link href="/dashboard" className="flex items-center gap-2 mb-8">
+          <span className="text-2xl font-bold text-[#D96E36]">Rx</span>
+        </Link>
+        <nav>
+          {sidebarLinks.map(link => (
+            <button
+              key={link.label}
+              onClick={() => setActiveSection(link.section)}
+              className={`w-full text-left px-3 py-2 rounded-md mb-1 ${
+                activeSection === link.section 
+                ? 'text-[#D96E36] bg-[#D96E36]/5 font-medium' 
+                : 'text-[#666] hover:text-[#222] hover:bg-[#FFFEFB]'
+              }`}
+            >
+              {link.label}
+            </button>
+          ))}
+        </nav>
+      </div>
       <SidebarAccountFooter />
     </Sidebar>
   );
@@ -162,6 +161,7 @@ export default function DashboardPage() {
   const [addingEducation, setAddingEducation] = useState(false);
   const [newEducation, setNewEducation] = useState({ degree: '', institution: '', year: '', description: '' });
   const [deleteModal, setDeleteModal] = useState({ type: '', id: null });
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     if (!user?.id) return;
@@ -359,434 +359,163 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FCF9F4] w-full">
-      <Header />
+    <div className="min-h-screen bg-[#FCF9F4]">
       <SidebarProvider>
-        <div className="flex min-h-screen w-screen overflow-x-hidden bg-[#f9f6f1]">
+        <div className="flex">
           <DashboardSidebar setActiveSection={setActiveSection} activeSection={activeSection} />
+          
           {/* Main Content */}
-          <main className="flex-1 flex flex-col items-center justify-start min-h-screen">
-            <div className="w-full flex justify-start p-4">
-              <SidebarTrigger />
-            </div>
-            <div className="w-full max-w-2xl mx-auto mb-8">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <h1 className="text-3xl font-bold tracking-tight flex-shrink-0">Dashboard</h1>
-                {activeSection === "Resumes" && (
-                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                  <Button className="bg-[#D96E36] hover:bg-[#D96E36]/80 w-full sm:w-auto">Upload Resume</Button>
-                  {/* This button links to the upload job description page */}
-                  <Link href="/upload-job">
-                    <Button variant="outline" className="w-full sm:w-auto">Upload Job Description</Button>
-                  </Link>
-                  {/* This button links to the manual upload page */}
-                  <Link href="/manual-entry">
-                    <Button variant="outline" className="w-full sm:w-auto">Add Data</Button>
-                  </Link>
+          <main className="flex-1 ml-4 min-h-screen">
+            <div className="p-6 w-full">
+              <div className="max-w-[1400px] mx-auto">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <h1 className="text-4xl font-semibold text-[#222]">Resumes</h1>
+                  
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center bg-[#FCF9F4] border border-[#ece7df] rounded-md overflow-hidden">
+                      <button
+                        onClick={() => setViewMode('grid')}
+                        className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-[#ece7df] text-[#222]' : 'text-[#666] hover:text-[#222]'}`}
+                        title="Grid view"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="3" width="7" height="7" />
+                          <rect x="14" y="3" width="7" height="7" />
+                          <rect x="3" y="14" width="7" height="7" />
+                          <rect x="14" y="14" width="7" height="7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => setViewMode('list')}
+                        className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-[#ece7df] text-[#222]' : 'text-[#666] hover:text-[#222]'}`}
+                        title="List view"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="3" y1="12" x2="21" y2="12" />
+                          <line x1="3" y1="6" x2="21" y2="6" />
+                          <line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                )}
+
+                {/* Content */}
+                <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' : 'space-y-4'}>
+                  {viewMode === 'grid' && (
+                    <>
+                      <Link href="/create-resume" className="block group [perspective:1000px]">
+                        <div className="relative aspect-[3/4] bg-[#222] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
+                          <div className="mb-6">
+                            <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                              </svg>
+                            </div>
+                          </div>
+                          <span className="text-lg font-medium">Create a new resume</span>
+                          <span className="text-sm text-white/70 mt-2">Start building from scratch</span>
+                        </div>
+                      </Link>
+                      <Link href="/import-resume" className="block group [perspective:1000px]">
+                        <div className="relative aspect-[3/4] bg-[#C4532D] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
+                          <div className="mb-6">
+                            <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                              </svg>
+                            </div>
+                          </div>
+                          <span className="text-lg font-medium">Import an existing...</span>
+                          <span className="text-sm text-white/70 mt-2">LinkedIn, JSON Resume, etc.</span>
+                        </div>
+                      </Link>
+                    </>
+                  )}
+                  {jobs.length === 0 ? (
+                    <div className={viewMode === 'grid' ? 'col-span-full' : ''}>
+                      <div className="p-8 text-center text-[#666] border border-[#ece7df] bg-[#FFFEFB] rounded-sm">
+                        No jobs found. Upload a job description to get started!
+                      </div>
+                    </div>
+                  ) : (
+                    jobs.map(job => (
+                      <div key={job.id} className={viewMode === 'list' ? 'group' : ''}>
+                        {viewMode === 'grid' ? (
+                          <Link href={`/preview?job_id=${job.id}`} className="block group [perspective:1000px]">
+                            <div className="relative aspect-[3/4] border border-[#ece7df] bg-[#FFFEFB] rounded-sm p-6 transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
+                              <div className="relative h-full flex flex-col">
+                                <div className="mb-4 overflow-hidden">
+                                  <h3 className="font-semibold text-xl text-[#222] mb-2 transition-colors truncate">{job.title}</h3>
+                                  {job.company && (
+                                    <span className="text-[#666] block truncate">{job.company}</span>
+                                  )}
+                                </div>
+                                <div className="mt-auto">
+                                  <span className="text-sm text-[#666]">Last updated {formatDate(job.created_at)}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </Link>
+                        ) : (
+                          <div className="flex items-center justify-between py-4 group-hover:bg-[#FCF9F4] px-4 rounded-lg transition-colors">
+                            <div className="flex-1">
+                              <Link href={`/preview?job_id=${job.id}`} className="block">
+                                <h3 className="font-semibold text-lg text-[#222] group-hover:text-[#D96E36] transition-colors">{job.title}</h3>
+                              </Link>
+                              <div className="flex items-center gap-2 mt-1">
+                                {job.company && (
+                                  <span className="text-[#666] text-sm">{job.company}</span>
+                                )}
+                                <span className="text-[#666] text-sm">Last updated {formatDate(job.created_at)}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center">
+                              <Button variant="outline" className="border-[#D96E36] text-[#D96E36] hover:bg-[#D96E36]/10">
+                                Preview
+                              </Button>
+                              <button className="ml-4 text-[#666] hover:text-[#222] transition-colors">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <circle cx="12" cy="12" r="1" />
+                                  <circle cx="12" cy="5" r="1" />
+                                  <circle cx="12" cy="19" r="1" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
-
-            <div className="flex flex-col gap-5 w-full max-w-2xl mx-auto">
-              {loading ? (
-                <div className="flex justify-center items-center h-40">
-                  <Loader2 className="animate-spin w-6 h-6 text-[#D96E36]" />
-                </div>
-              ) : error ? (
-                <div className="text-red-500 text-center">{error}</div>
-              ) : activeSection === "Resumes" ? (
-                jobs.length === 0 ? (
-                <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No jobs found. Upload a job description to get started!</Card>
-              ) : (
-                jobs.map(job => (
-                  <Card key={job.id} className="flex flex-col md:flex-row md:items-center justify-between border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition">
-                    <div className="flex-1 flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-lg text-gray-900">{job.title}</span>
-                        {job.company && <span className="text-gray-600 text-base font-medium">- {job.company}</span>}
-                      </div>
-                      <div className="flex gap-4 text-xs text-gray-500 mt-1">
-                        <span>{formatDate(job.created_at)}</span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col md:items-end gap-2 mt-4 md:mt-0">
-                      <Link href={`/preview?job_id=${job.id}`} passHref legacyBehavior>
-                        <Button variant="outline" className="border-[#D96E36] text-[#D96E36] hover:bg-[#D96E36]/10 w-full sm:w-auto">Preview</Button>
-                      </Link>
-                    </div>
-                  </Card>
-                ))
-                )
-              ) : activeSection === "Projects" ? (
-                <div>
-                  <div className="flex items-center mb-4">
-                    <h2 className="text-2xl font-bold mr-4">Projects</h2>
-                    <Button size="sm" className="bg-[#D96E36] text-white ml-auto" onClick={() => setAddingProject(true)}>+ Add Project</Button>
-                  </div>
-                  {addingProject && (
-                    <Card className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
-                      <div className="flex flex-col gap-2">
-                        <input
-                          className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                          value={newProject.name}
-                          onChange={e => setNewProject(p => ({ ...p, name: e.target.value }))}
-                          placeholder="Project Name"
-                        />
-                        <textarea
-                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                          value={newProject.description}
-                          onChange={e => setNewProject(p => ({ ...p, description: e.target.value }))}
-                          placeholder="Description"
-                          rows={3}
-                        />
-                        <div className="flex gap-2 mt-2">
-                          <Button size="sm" className="bg-[#D96E36] text-white" onClick={handleAddProject}>Save</Button>
-                          <Button size="sm" variant="outline" onClick={() => { setAddingProject(false); setNewProject({ name: '', description: '' }); }}>Cancel</Button>
-                        </div>
-                      </div>
-                    </Card>
-                  )}
-                  {projects.length === 0 ? (
-                    <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No projects found.</Card>
-                  ) : (
-                    projects.map(project => {
-                      const expanded = expandedProject === project.id;
-                      const editing = editingProject === project.id;
-                      return (
-                        <Card key={project.id} className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
-                          <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedProject(expanded ? null : project.id)}>
-                            <div className="font-semibold text-lg text-gray-900 mb-1 flex items-center">
-                              {expanded ? <ChevronDown className="w-5 h-5 mr-2" /> : <ChevronRight className="w-5 h-5 mr-2" />}
-                              {project.name}
-                              {project.company && <span className="text-base text-gray-600 ml-2">- {project.company}</span>}
-                            </div>
-                          </div>
-                          {expanded && (
-                            <div className="mt-2">
-                              {editing ? (
-                                <div className="flex flex-col gap-2">
-                                  <input
-                                    className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                    value={projectEdits.name || ""}
-                                    onChange={e => handleProjectEdit(project.id, "name", e.target.value)}
-                                    placeholder="Project Name"
-                                  />
-                                  <textarea
-                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                    value={projectEdits.description || ""}
-                                    onChange={e => handleProjectEdit(project.id, "description", e.target.value)}
-                                    placeholder="Description"
-                                    rows={3}
-                                  />
-                                  <div className="flex gap-2 mt-2">
-                                    <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => saveProjectEdit(project.id)}>Save</Button>
-                                    <Button size="sm" variant="outline" onClick={cancelProjectEdit}>Cancel</Button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div>
-                                  <div className="font-semibold text-base mb-1 bg-[#FCF9F4] rounded p-2">{project.name}</div>
-                                  {project.company && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{project.company}</div>}
-                                  {project.duration && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{project.duration}</div>}
-                                  <div className="bg-[#FCF9F4] rounded p-2 mb-1 whitespace-pre-line">{project.description}</div>
-                                  <div className="flex gap-2 mt-2">
-                                    <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => startProjectEdit(project)}>Edit</Button>
-                                    <Button size="sm" className="bg-[#6B3F1D] text-white" onClick={() => setDeleteModal({ type: 'project', id: project.id })}>Delete</Button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </Card>
-                      );
-                    })
-                  )}
-                </div>
-              ) : activeSection === "Experiences" ? (
-                <div>
-                  <div className="flex items-center mb-4">
-                    <h2 className="text-2xl font-bold mr-4">Experiences</h2>
-                    <Button size="sm" className="bg-[#D96E36] text-white ml-auto" onClick={() => setAddingExperience(true)}>+ Add Experience</Button>
-                  </div>
-                  {addingExperience && (
-                    <Card className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
-                      <div className="flex flex-col gap-2">
-                        <input
-                          className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                          value={newExperience.position}
-                          onChange={e => setNewExperience(exp => ({ ...exp, position: e.target.value }))}
-                          placeholder="Position"
-                        />
-                        <input
-                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                          value={newExperience.company}
-                          onChange={e => setNewExperience(exp => ({ ...exp, company: e.target.value }))}
-                          placeholder="Company"
-                        />
-                        <input
-                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                          value={newExperience.duration}
-                          onChange={e => setNewExperience(exp => ({ ...exp, duration: e.target.value }))}
-                          placeholder="Duration"
-                        />
-                        <textarea
-                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                          value={newExperience.description}
-                          onChange={e => setNewExperience(exp => ({ ...exp, description: e.target.value }))}
-                          placeholder="Description"
-                          rows={3}
-                        />
-                        <div className="flex gap-2 mt-2">
-                          <Button size="sm" className="bg-[#D96E36] text-white" onClick={handleAddExperience}>Save</Button>
-                          <Button size="sm" variant="outline" onClick={() => { setAddingExperience(false); setNewExperience({ position: '', company: '', duration: '', description: '' }); }}>Cancel</Button>
-                        </div>
-                      </div>
-                    </Card>
-                  )}
-                  {experiences.length === 0 ? (
-                    <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No experiences found.</Card>
-                  ) : (
-                    experiences.map(exp => {
-                      const expanded = expandedExperience === exp.id;
-                      const editing = editingExperience === exp.id;
-                      return (
-                        <Card key={exp.id} className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
-                          <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedExperience(expanded ? null : exp.id)}>
-                            <div className="font-semibold text-lg text-gray-900 mb-1 flex items-center">
-                              {expanded ? <ChevronDown className="w-5 h-5 mr-2" /> : <ChevronRight className="w-5 h-5 mr-2" />}
-                              {exp.position} {exp.company && <span className="text-base text-gray-600">- {exp.company}</span>}
-                            </div>
-                            {!editing && <Button variant="outline" size="sm" onClick={e => { e.stopPropagation(); startExperienceEdit(exp); }}>Edit</Button>}
-                          </div>
-                          {expanded && (
-                            <div className="mt-2">
-                              {editing ? (
-                                <div className="flex flex-col gap-2">
-                                  <input
-                                    className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                    value={experienceEdits.position || ""}
-                                    onChange={e => handleExperienceEdit(exp.id, "position", e.target.value)}
-                                    placeholder="Position"
-                                  />
-                                  <input
-                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                    value={experienceEdits.company || ""}
-                                    onChange={e => handleExperienceEdit(exp.id, "company", e.target.value)}
-                                    placeholder="Company"
-                                  />
-                                  <input
-                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                    value={experienceEdits.duration || ""}
-                                    onChange={e => handleExperienceEdit(exp.id, "duration", e.target.value)}
-                                    placeholder="Duration"
-                                  />
-                                  <textarea
-                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                    value={experienceEdits.description || ""}
-                                    onChange={e => handleExperienceEdit(exp.id, "description", e.target.value)}
-                                    placeholder="Description"
-                                    rows={3}
-                                  />
-                                  <div className="flex gap-2 mt-2">
-                                    <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => saveExperienceEdit(exp.id)}>Save</Button>
-                                    <Button size="sm" variant="outline" onClick={cancelExperienceEdit}>Cancel</Button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div>
-                                  <div className="font-semibold text-base mb-1 bg-[#FCF9F4] rounded p-2">{exp.position}</div>
-                                  {exp.company && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{exp.company}</div>}
-                                  {exp.duration && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{exp.duration}</div>}
-                                  <div className="bg-[#FCF9F4] rounded p-2 mb-1 whitespace-pre-line">{exp.description}</div>
-                                  <div className="flex gap-2 mt-2">
-                                    <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => startExperienceEdit(exp)}>Edit</Button>
-                                    <Button size="sm" className="bg-[#6B3F1D] text-white" onClick={() => setDeleteModal({ type: 'experience', id: exp.id })}>Delete</Button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </Card>
-                      );
-                    })
-                  )}
-                </div>
-              ) : activeSection === "Education" ? (
-                <div>
-                  <div className="flex items-center mb-4">
-                    <h2 className="text-2xl font-bold mr-4">Education</h2>
-                    <Button size="sm" className="bg-[#D96E36] text-white ml-auto" onClick={() => setAddingEducation(true)}>+ Add Education</Button>
-                  </div>
-                  {addingEducation && (
-                    <Card className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
-                      <div className="flex flex-col gap-2">
-                        <input
-                          className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                          value={newEducation.degree}
-                          onChange={e => setNewEducation(ed => ({ ...ed, degree: e.target.value }))}
-                          placeholder="Degree"
-                        />
-                        <input
-                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                          value={newEducation.institution}
-                          onChange={e => setNewEducation(ed => ({ ...ed, institution: e.target.value }))}
-                          placeholder="Institution"
-                        />
-                        <input
-                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                          value={newEducation.year}
-                          onChange={e => setNewEducation(ed => ({ ...ed, year: e.target.value }))}
-                          placeholder="Year"
-                        />
-                        <textarea
-                          className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                          value={newEducation.description}
-                          onChange={e => setNewEducation(ed => ({ ...ed, description: e.target.value }))}
-                          placeholder="Description"
-                          rows={3}
-                        />
-                        <div className="flex gap-2 mt-2">
-                          <Button size="sm" className="bg-[#D96E36] text-white" onClick={handleAddEducation}>Save</Button>
-                          <Button size="sm" variant="outline" onClick={() => { setAddingEducation(false); setNewEducation({ degree: '', institution: '', year: '', description: '' }); }}>Cancel</Button>
-                        </div>
-                      </div>
-                    </Card>
-                  )}
-                  {education.length === 0 ? (
-                    <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No education found.</Card>
-                  ) : (
-                    education.map(edu => {
-                      const expanded = expandedEducation === edu.id;
-                      const editing = editingEducation === edu.id;
-                      return (
-                        <Card key={edu.id} className="flex flex-col border border-[#d1d5db] rounded-xl px-6 py-4 bg-white transition mb-3">
-                          <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedEducation(expanded ? null : edu.id)}>
-                            <div className="font-semibold text-lg text-gray-900 mb-1 flex items-center">
-                              {expanded ? <ChevronDown className="w-5 h-5 mr-2" /> : <ChevronRight className="w-5 h-5 mr-2" />}
-                              {edu.degree} {edu.institution && <span className="text-base text-gray-600 ml-2">- {edu.institution}</span>}
-                            </div>
-                          </div>
-                          {expanded && (
-                            <div className="mt-2">
-                              {editing ? (
-                                <div className="flex flex-col gap-2">
-                                  <input
-                                    className="border border-[#ece7df] rounded p-2 font-semibold bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                    value={educationEdits.degree || ''}
-                                    onChange={e => handleEducationEdit(edu.id, 'degree', e.target.value)}
-                                    placeholder="Degree"
-                                  />
-                                  <input
-                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                    value={educationEdits.institution || ''}
-                                    onChange={e => handleEducationEdit(edu.id, 'institution', e.target.value)}
-                                    placeholder="Institution"
-                                  />
-                                  <input
-                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                    value={educationEdits.year || ''}
-                                    onChange={e => handleEducationEdit(edu.id, 'year', e.target.value)}
-                                    placeholder="Year"
-                                  />
-                                  <textarea
-                                    className="border border-[#ece7df] rounded p-2 bg-[#FCF9F4] focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                                    value={educationEdits.description || ''}
-                                    onChange={e => handleEducationEdit(edu.id, 'description', e.target.value)}
-                                    placeholder="Description"
-                                    rows={3}
-                                  />
-                                  <div className="flex gap-2 mt-2">
-                                    <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => saveEducationEdit(edu.id)}>Save</Button>
-                                    <Button size="sm" variant="outline" onClick={cancelEducationEdit}>Cancel</Button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div>
-                                  <div className="font-semibold text-base mb-1 bg-[#FCF9F4] rounded p-2">{edu.degree}</div>
-                                  {edu.institution && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{edu.institution}</div>}
-                                  {edu.year && <div className="bg-[#FCF9F4] rounded p-2 mb-1">{edu.year}</div>}
-                                  <div className="bg-[#FCF9F4] rounded p-2 mb-1 whitespace-pre-line">{edu.description}</div>
-                                  <div className="flex gap-2 mt-2">
-                                    <Button size="sm" className="bg-[#D96E36] text-white" onClick={() => startEducationEdit(edu)}>Edit</Button>
-                                    <Button size="sm" className="bg-[#6B3F1D] text-white" onClick={() => setDeleteModal({ type: 'education', id: edu.id })}>Delete</Button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </Card>
-                      );
-                    })
-                  )}
-                </div>
-              ) : activeSection === "Skills" ? (
-                <div>
-                  <div className="flex items-center mb-4">
-                    <h2 className="text-2xl font-bold mr-4">Skills</h2>
-                  </div>
-                  <div className="flex gap-2 mb-4">
-                    <input
-                      className="border border-[#ece7df] rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#D96E36]/30"
-                      placeholder="Add a skill..."
-                      value={newSkill}
-                      onChange={e => setNewSkill(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter') handleAddSkill(); }}
-                    />
-                    <Button
-                      className="bg-[#D96E36] text-white px-4 py-2 rounded font-semibold"
-                      onClick={handleAddSkill}
-                      disabled={!newSkill.trim()}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                  {skills.length === 0 ? (
-                    <Card className="p-8 text-center text-gray-500 border border-[#ece7df] bg-white">No skills found.</Card>
-                  ) : (
-                    <Card className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 p-6 border border-[#ece7df] bg-white">
-                      {skills.map(skill => (
-                        <span
-                          key={skill.id}
-                          className="relative bg-[#FCF9F4] border border-[#ece7df] rounded px-3 py-2 text-sm font-medium text-[#222] flex items-center group transition-shadow hover:shadow-sm"
-                        >
-                          {skill.name}
-                          <button
-                            className="ml-2 text-[#D96E36] hover:text-red-600 text-xs font-bold opacity-60 group-hover:opacity-100 transition-opacity absolute top-1 right-1"
-                            title="Remove skill"
-                            onClick={() => handleRemoveSkill(skill.id)}
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </Card>
-                  )}
-                </div>
-              ) : null}
-            </div>
-            {/* Confirmation Modal */}
-            <Dialog open={!!deleteModal.type} onOpenChange={open => { if (!open) setDeleteModal({ type: '', id: null }); }}>
-              <DialogContent>
-                <DialogTitle>Delete {deleteModal.type.charAt(0).toUpperCase() + deleteModal.type.slice(1)}</DialogTitle>
-                <DialogDescription>Are you sure you want to delete this {deleteModal.type}? This action cannot be undone.</DialogDescription>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setDeleteModal({ type: '', id: null })}>Cancel</Button>
-                  <Button
-                    className="bg-[#D96E36] text-white"
-                    onClick={() => {
-                      if (deleteModal.id !== null) handleDelete(deleteModal.type, deleteModal.id);
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
           </main>
         </div>
       </SidebarProvider>
-      <Footer />
+      
+      {/* Delete Modal */}
+      <Dialog open={!!deleteModal.type} onOpenChange={open => { if (!open) setDeleteModal({ type: '', id: null }); }}>
+        <DialogContent>
+          <DialogTitle>Delete {deleteModal.type.charAt(0).toUpperCase() + deleteModal.type.slice(1)}</DialogTitle>
+          <DialogDescription>Are you sure you want to delete this {deleteModal.type}? This action cannot be undone.</DialogDescription>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteModal({ type: '', id: null })}>Cancel</Button>
+            <Button
+              className="bg-[#D96E36] text-white"
+              onClick={() => {
+                if (deleteModal.id !== null) handleDelete(deleteModal.type, deleteModal.id);
+              }}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 
