@@ -108,24 +108,24 @@ function SidebarAccountFooter() {
 
 function DashboardSidebar({ setActiveSection, activeSection }: { setActiveSection: (section: string) => void, activeSection: string }) {
   return (
-    <Sidebar className="border-r border-[#ece7df] bg-[#FFFEFB] w-64 fixed h-screen">
+    <Sidebar className="border-r border-[#ece7df] bg-[#FFFEFB] w-64 h-full">
       <div className="p-6">
         <Link href="/dashboard" className="flex items-center gap-2 mb-8">
           <span className="text-2xl font-bold text-[#D96E36]">Rx</span>
         </Link>
         <nav>
-          {sidebarLinks.map(link => (
-            <button
+              {sidebarLinks.map(link => (
+                    <button
               key={link.label}
-              onClick={() => setActiveSection(link.section)}
+                      onClick={() => setActiveSection(link.section)}
               className={`w-full text-left px-3 py-2 rounded-md mb-1 ${
                 activeSection === link.section 
                 ? 'text-[#D96E36] bg-[#D96E36]/5 font-medium' 
                 : 'text-[#666] hover:text-[#222] hover:bg-[#FFFEFB]'
               }`}
-            >
-              {link.label}
-            </button>
+                    >
+                      {link.label}
+                    </button>
           ))}
         </nav>
       </div>
@@ -359,163 +359,170 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FCF9F4]">
+    <div className="flex min-h-screen bg-[#FCF9F4]">
       <SidebarProvider>
-        <div className="flex">
-          <DashboardSidebar setActiveSection={setActiveSection} activeSection={activeSection} />
-          
-          {/* Main Content */}
-          <main className="flex-1 ml-4 min-h-screen">
-            <div className="p-6 w-full">
-              <div className="max-w-[1400px] mx-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                  <h1 className="text-4xl font-semibold text-[#222]">Resumes</h1>
-                  
-                  <div className="flex items-center gap-6">
-                    <div className="flex items-center bg-[#FCF9F4] border border-[#ece7df] rounded-md overflow-hidden">
-                      <button
-                        onClick={() => setViewMode('grid')}
-                        className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-[#ece7df] text-[#222]' : 'text-[#666] hover:text-[#222]'}`}
-                        title="Grid view"
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <rect x="3" y="3" width="7" height="7" />
-                          <rect x="14" y="3" width="7" height="7" />
-                          <rect x="3" y="14" width="7" height="7" />
-                          <rect x="14" y="14" width="7" height="7" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => setViewMode('list')}
-                        className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-[#ece7df] text-[#222]' : 'text-[#666] hover:text-[#222]'}`}
-                        title="List view"
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <line x1="3" y1="12" x2="21" y2="12" />
-                          <line x1="3" y1="6" x2="21" y2="6" />
-                          <line x1="3" y1="18" x2="21" y2="18" />
-                        </svg>
-                      </button>
-                    </div>
+        <DashboardSidebar setActiveSection={setActiveSection} activeSection={activeSection} />
+        {/* Main Content */}
+        <main className="flex-1 min-h-screen flex flex-col">
+          <div className="flex-1 flex flex-col p-6">
+            <div className="flex-1 flex flex-col">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-8">
+                <h1 className="text-[2rem] font-medium text-[#222]">Resumes</h1>
+                
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center rounded-md overflow-hidden border border-[#ece7df] bg-white">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-[#222] text-white' : 'text-[#666] hover:text-[#222]'}`}
+                      title="Grid view"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-[#222] text-white' : 'text-[#666] hover:text-[#222]'}`}
+                      title="List view"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
+              </div>
 
-                {/* Content */}
-                <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' : 'space-y-4'}>
-                  {viewMode === 'grid' && (
-                    <>
-                      <Link href="/create-resume" className="block group [perspective:1000px]">
-                        <div className="relative aspect-[3/4] bg-[#222] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
-                          <div className="mb-6">
-                            <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
-                                <line x1="12" y1="5" x2="12" y2="19" />
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                              </svg>
-                            </div>
+              {/* Content */}
+              <div className={`transition-all duration-300 ease-in-out ${
+                viewMode === 'grid' 
+                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 opacity-100' 
+                : 'flex-1 flex justify-center opacity-100'
+              }`}>
+                {viewMode === 'grid' && (
+                  <>
+                    <Link href="/create-resume" className="block group [perspective:1000px] animate-in fade-in duration-300">
+                      <div className="relative aspect-[3/4] bg-[#222] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
+                        <div className="mb-6">
+                          <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
+                              <line x1="12" y1="5" x2="12" y2="19" />
+                              <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
                           </div>
-                          <span className="text-lg font-medium">Create a new resume</span>
-                          <span className="text-sm text-white/70 mt-2">Start building from scratch</span>
+                        </div>
+                        <span className="text-lg font-medium">Create a new resume</span>
+                        <span className="text-sm text-white/70 mt-2">Start building from scratch</span>
+                      </div>
+                    </Link>
+                    <Link href="/import-resume" className="block group [perspective:1000px] animate-in fade-in duration-300">
+                      <div className="relative aspect-[3/4] bg-[#C4532D] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
+                        <div className="mb-6">
+                          <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                              <polyline points="7 10 12 15 17 10" />
+                              <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                          </div>
+                        </div>
+                        <span className="text-lg font-medium">Import an existing...</span>
+                        <span className="text-sm text-white/70 mt-2">LinkedIn, JSON Resume, etc.</span>
+                      </div>
+                    </Link>
+                    {jobs.map(job => (
+                      <Link key={job.id} href={`/preview?job_id=${job.id}`} className="block group [perspective:1000px] animate-in fade-in duration-300">
+                        <div className="relative aspect-[3/4] border border-[#ece7df] bg-[#FFFEFB] rounded-sm p-6 transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
+                          <div className="relative h-full flex flex-col">
+                            <div className="mb-4 overflow-hidden">
+                              <h3 className="font-semibold text-xl text-[#222] mb-2 transition-colors truncate">{job.title}</h3>
+                              {job.company && (
+                                <span className="text-[#666] block truncate">{job.company}</span>
+                              )}
+                            </div>
+                            <div className="mt-auto">
+                              <span className="text-sm text-[#666]">Last updated {formatDate(job.created_at)}</span>
+                        </div>
+                          </div>
                         </div>
                       </Link>
-                      <Link href="/import-resume" className="block group [perspective:1000px]">
-                        <div className="relative aspect-[3/4] bg-[#C4532D] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
-                          <div className="mb-6">
-                            <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="7 10 12 15 17 10" />
-                                <line x1="12" y1="15" x2="12" y2="3" />
-                              </svg>
-                            </div>
-                          </div>
-                          <span className="text-lg font-medium">Import an existing...</span>
-                          <span className="text-sm text-white/70 mt-2">LinkedIn, JSON Resume, etc.</span>
+                    ))}
+                  </>
+                )}
+                {viewMode === 'list' && (
+                  <div className="w-full bg-white/40 backdrop-blur-sm rounded-sm border border-[#ece7df] shadow-[0_1px_3px_0_rgb(0,0,0,0.05)] animate-in fade-in slide-in-from-top-4 duration-300">
+                    <Link href="/create-resume" className="flex items-center gap-3 p-4 hover:bg-white/60 transition-colors duration-200 border-b border-[#ece7df]">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#222] text-white shadow-sm">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="12" y1="5" x2="12" y2="19" />
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-[#222]">Create a new resume</h3>
+                        <p className="text-sm text-[#666]">Start building from scratch</p>
+                      </div>
+                    </Link>
+                    <Link href="/import-resume" className="flex items-center gap-3 p-4 hover:bg-white/60 transition-colors duration-200 border-b border-[#ece7df]">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#D96E36] text-white shadow-sm">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-[#222]">Import an existing resume</h3>
+                        <p className="text-sm text-[#666]">LinkedIn, JSON Resume, etc.</p>
+                      </div>
+                    </Link>
+                    {jobs.map((job, index) => (
+                      <Link 
+                        key={job.id}
+                        href={`/preview?job_id=${job.id}`} 
+                        className="flex items-center justify-between p-4 hover:bg-white/60 transition-colors duration-200 border-b border-[#ece7df] last:border-b-0"
+                      >
+                        <div className="flex flex-col min-w-0">
+                          <h3 className="font-medium text-[#222] truncate">{job.title}</h3>
+                          <span className="text-sm text-[#666] truncate">{job.company}</span>
+                        </div>
+                        <div className="flex items-center ml-4">
+                          <span className="text-sm text-[#666]">{formatDate(job.created_at)}</span>
                         </div>
                       </Link>
-                    </>
-                  )}
-                  {jobs.length === 0 ? (
-                    <div className={viewMode === 'grid' ? 'col-span-full' : ''}>
-                      <div className="p-8 text-center text-[#666] border border-[#ece7df] bg-[#FFFEFB] rounded-sm">
-                        No jobs found. Upload a job description to get started!
-                      </div>
-                    </div>
-                  ) : (
-                    jobs.map(job => (
-                      <div key={job.id} className={viewMode === 'list' ? 'group' : ''}>
-                        {viewMode === 'grid' ? (
-                          <Link href={`/preview?job_id=${job.id}`} className="block group [perspective:1000px]">
-                            <div className="relative aspect-[3/4] border border-[#ece7df] bg-[#FFFEFB] rounded-sm p-6 transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
-                              <div className="relative h-full flex flex-col">
-                                <div className="mb-4 overflow-hidden">
-                                  <h3 className="font-semibold text-xl text-[#222] mb-2 transition-colors truncate">{job.title}</h3>
-                                  {job.company && (
-                                    <span className="text-[#666] block truncate">{job.company}</span>
-                                  )}
-                                </div>
-                                <div className="mt-auto">
-                                  <span className="text-sm text-[#666]">Last updated {formatDate(job.created_at)}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </Link>
-                        ) : (
-                          <div className="flex items-center justify-between py-4 group-hover:bg-[#FCF9F4] px-4 rounded-lg transition-colors">
-                            <div className="flex-1">
-                              <Link href={`/preview?job_id=${job.id}`} className="block">
-                                <h3 className="font-semibold text-lg text-[#222] group-hover:text-[#D96E36] transition-colors">{job.title}</h3>
-                              </Link>
-                              <div className="flex items-center gap-2 mt-1">
-                                {job.company && (
-                                  <span className="text-[#666] text-sm">{job.company}</span>
-                                )}
-                                <span className="text-[#666] text-sm">Last updated {formatDate(job.created_at)}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button variant="outline" className="border-[#D96E36] text-[#D96E36] hover:bg-[#D96E36]/10">
-                                Preview
-                              </Button>
-                              <button className="ml-4 text-[#666] hover:text-[#222] transition-colors">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <circle cx="12" cy="12" r="1" />
-                                  <circle cx="12" cy="5" r="1" />
-                                  <circle cx="12" cy="19" r="1" />
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-          </main>
-        </div>
+          </div>
+        </main>
       </SidebarProvider>
       
       {/* Delete Modal */}
-      <Dialog open={!!deleteModal.type} onOpenChange={open => { if (!open) setDeleteModal({ type: '', id: null }); }}>
-        <DialogContent>
-          <DialogTitle>Delete {deleteModal.type.charAt(0).toUpperCase() + deleteModal.type.slice(1)}</DialogTitle>
-          <DialogDescription>Are you sure you want to delete this {deleteModal.type}? This action cannot be undone.</DialogDescription>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteModal({ type: '', id: null })}>Cancel</Button>
-            <Button
-              className="bg-[#D96E36] text-white"
-              onClick={() => {
-                if (deleteModal.id !== null) handleDelete(deleteModal.type, deleteModal.id);
-              }}
-            >
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <Dialog open={!!deleteModal.type} onOpenChange={open => { if (!open) setDeleteModal({ type: '', id: null }); }}>
+              <DialogContent>
+                <DialogTitle>Delete {deleteModal.type.charAt(0).toUpperCase() + deleteModal.type.slice(1)}</DialogTitle>
+                <DialogDescription>Are you sure you want to delete this {deleteModal.type}? This action cannot be undone.</DialogDescription>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setDeleteModal({ type: '', id: null })}>Cancel</Button>
+                  <Button
+                    className="bg-[#D96E36] text-white"
+                    onClick={() => {
+                      if (deleteModal.id !== null) handleDelete(deleteModal.type, deleteModal.id);
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
     </div>
   );
 } 
