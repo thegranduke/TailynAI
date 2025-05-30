@@ -69,75 +69,77 @@ export default function PreviewPage() {
   }, [user?.id, searchParams]);
 
   return (
-    <div className="min-h-screen flex bg-[#FCF9F4]">
-      <SidebarProvider>
-        <Sidebar className="w-[400px] min-w-[400px] border-r border-[#ece7df] bg-white">
+    <div className="flex min-h-screen bg-[#FCF9F4]">
+      <SidebarProvider style={{ "--sidebar-width": "450px" } as React.CSSProperties}>
+        <Sidebar className="border-r border-[#ece7df] bg-[#FFFEFB]">
           <SidebarContent className="flex flex-col h-full">
             {/* Header */}
-            <div className="px-4 h-14 border-b border-[#ece7df] flex items-center justify-between">
-              <Link 
-                href="/dashboard" 
-                className="inline-flex items-center text-[#666] hover:text-[#222] transition-colors text-sm"
-              >
-                <ChevronLeft className="w-4 h-4 mr-1.5" />
-                Back to Dashboard
-              </Link>
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost"
-                  size="sm"
-                  className="text-[#666] hover:text-[#222]"
+            <div className="shrink-0 border-b border-[#ece7df]">
+              <div className="px-4 h-14 flex items-center justify-between">
+                <Link 
+                  href="/dashboard" 
+                  className="inline-flex items-center text-[#666] hover:text-[#222] transition-colors text-sm"
                 >
-                  <Download className="w-4 h-4" />
-                </Button>
-                <Button 
-                  size="sm"
-                  className="bg-[#D96E36] hover:bg-[#D96E36]/90 text-white"
-                >
-                  <Save className="w-4 h-4" />
-                </Button>
+                  <ChevronLeft className="w-4 h-4 mr-1.5" />
+                  Back to Dashboard
+                </Link>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="ghost"
+                    size="sm"
+                    className="text-[#666] hover:text-[#222]"
+                  >
+                    <Download className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    size="sm"
+                    className="bg-[#D96E36] hover:bg-[#D96E36]/90 text-white"
+                  >
+                    <Save className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Section Navigation */}
+              <div className="p-4 pb-0">
+                <nav className="bg-[#FCF9F4]/50 rounded-lg p-1.5 flex items-center gap-1">
+                  {sections.map((section) => {
+                    const Icon = section.icon;
+                    return (
+                      <button
+                        key={section.id}
+                        onClick={() => setActiveSection(section.id)}
+                        className={`flex-1 p-2 rounded-md transition-all ${
+                          activeSection === section.id
+                            ? 'text-[#D96E36]'
+                            : 'text-[#666] hover:text-[#222] hover:bg-white/50'
+                        }`}
+                        title={section.label}
+                      >
+                        <Icon className="w-4 h-4 mx-auto" />
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+
+              {/* Section Title */}
+              <div className="px-6 py-4 flex items-center justify-between">
+                <h2 className="text-sm font-medium text-[#222]">
+                  {sections.find(s => s.id === activeSection)?.label}
+                </h2>
+                <span className="text-xs text-[#666]">
+                  {activeSection === 'basics' ? 'Personal Information' : 
+                   activeSection === 'experience' ? 'Work History' :
+                   activeSection === 'education' ? 'Academic Background' :
+                   activeSection === 'skills' ? 'Technical Skills' : 'Portfolio'}
+                </span>
               </div>
             </div>
 
-            {/* Section Navigation */}
-            <div className="p-4 pb-0">
-              <nav className="bg-[#FCF9F4]/50 rounded-lg p-1.5 flex items-center gap-1">
-                {sections.map((section) => {
-                  const Icon = section.icon;
-                  return (
-                    <button
-                      key={section.id}
-                      onClick={() => setActiveSection(section.id)}
-                      className={`flex-1 p-2 rounded-md transition-all ${
-                        activeSection === section.id
-                          ? 'text-[#D96E36]'
-                          : 'text-[#666] hover:text-[#222] hover:bg-white/50'
-                      }`}
-                      title={section.label}
-                    >
-                      <Icon className="w-4 h-4 mx-auto" />
-                    </button>
-                  );
-                })}
-              </nav>
-            </div>
-
-            {/* Section Title */}
-            <div className="px-6 py-4 flex items-center justify-between">
-              <h2 className="text-sm font-medium text-[#222]">
-                {sections.find(s => s.id === activeSection)?.label}
-              </h2>
-              <span className="text-xs text-[#666]">
-                {activeSection === 'basics' ? 'Personal Information' : 
-                 activeSection === 'experience' ? 'Work History' :
-                 activeSection === 'education' ? 'Academic Background' :
-                 activeSection === 'skills' ? 'Technical Skills' : 'Portfolio'}
-              </span>
-            </div>
-
-            {/* Section Editor */}
-            <ScrollArea className="flex-1 px-6" style={{"--scrollbar-size": "4px"} as any}>
-              <div className="pr-4">
+            {/* Scrollable Content */}
+            <ScrollArea className="flex-1 px-6">
+              <div className="py-6 pr-4">
                 <ResumeSectionEditor section={activeSection} />
               </div>
             </ScrollArea>
@@ -145,9 +147,9 @@ export default function PreviewPage() {
         </Sidebar>
 
         {/* Main Preview Area */}
-        <main className="flex-1 flex flex-col">
-          <div className="flex-1 flex items-center justify-center p-8 overflow-auto">
-            <div className="w-full max-w-[800px] mx-auto bg-white border border-[#ece7df]">
+        <main className="flex-1 min-h-screen flex flex-col">
+          <div className="flex-1 p-6">
+            <div className="h-full flex items-center">
               {error ? (
                 <div className="text-red-500 p-8">{error}</div>
               ) : (
