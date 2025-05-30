@@ -126,7 +126,7 @@ function DashboardSidebar({ setActiveSection, activeSection }: { setActiveSectio
                     >
                       {link.label}
                     </button>
-          ))}
+              ))}
         </nav>
       </div>
       <SidebarAccountFooter />
@@ -361,8 +361,8 @@ export default function DashboardPage() {
   return (
     <div className="flex min-h-screen bg-[#FCF9F4]">
       <SidebarProvider>
-        <DashboardSidebar setActiveSection={setActiveSection} activeSection={activeSection} />
-        {/* Main Content */}
+          <DashboardSidebar setActiveSection={setActiveSection} activeSection={activeSection} />
+          {/* Main Content */}
         <main className="flex-1 min-h-screen flex flex-col">
           <div className="flex-1 flex flex-col p-6">
             <div className="flex-1 flex flex-col">
@@ -395,9 +395,9 @@ export default function DashboardPage() {
                         <line x1="3" y1="18" x2="21" y2="18" />
                       </svg>
                     </button>
-                  </div>
-                </div>
+            </div>
               </div>
+            </div>
 
               {/* Content */}
               <div className={`transition-all duration-300 ease-in-out ${
@@ -415,12 +415,12 @@ export default function DashboardPage() {
                               <line x1="12" y1="5" x2="12" y2="19" />
                               <line x1="5" y1="12" x2="19" y2="12" />
                             </svg>
-                          </div>
-                        </div>
+                </div>
+                      </div>
                         <span className="text-lg font-medium">Create a new resume</span>
                         <span className="text-sm text-white/70 mt-2">Start building from scratch</span>
                       </div>
-                    </Link>
+                      </Link>
                     <Link href="/import-resume" className="block group [perspective:1000px] animate-in fade-in duration-300">
                       <div className="relative aspect-[3/4] bg-[#C4532D] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
                         <div className="mb-6">
@@ -430,7 +430,7 @@ export default function DashboardPage() {
                               <polyline points="7 10 12 15 17 10" />
                               <line x1="12" y1="15" x2="12" y2="3" />
                             </svg>
-                          </div>
+                  </div>
                         </div>
                         <span className="text-lg font-medium">Import an existing...</span>
                         <span className="text-sm text-white/70 mt-2">LinkedIn, JSON Resume, etc.</span>
@@ -467,7 +467,7 @@ export default function DashboardPage() {
                       <div>
                         <h3 className="font-medium text-[#222]">Create a new resume</h3>
                         <p className="text-sm text-[#666]">Start building from scratch</p>
-                      </div>
+                            </div>
                     </Link>
                     <Link href="/import-resume" className="flex items-center gap-3 p-4 hover:bg-white/60 transition-colors duration-200 border-b border-[#ece7df]">
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#D96E36] text-white shadow-sm">
@@ -476,11 +476,11 @@ export default function DashboardPage() {
                           <polyline points="7 10 12 15 17 10" />
                           <line x1="12" y1="15" x2="12" y2="3" />
                         </svg>
-                      </div>
-                      <div>
+                                </div>
+                                <div>
                         <h3 className="font-medium text-[#222]">Import an existing resume</h3>
                         <p className="text-sm text-[#666]">LinkedIn, JSON Resume, etc.</p>
-                      </div>
+                                  </div>
                     </Link>
                     {jobs.map((job, index) => (
                       <Link 
@@ -491,15 +491,15 @@ export default function DashboardPage() {
                         <div className="flex flex-col min-w-0">
                           <h3 className="font-medium text-[#222] truncate">{job.title}</h3>
                           <span className="text-sm text-[#666] truncate">{job.company}</span>
-                        </div>
+                                </div>
                         <div className="flex items-center ml-4">
                           <span className="text-sm text-[#666]">{formatDate(job.created_at)}</span>
-                        </div>
+                            </div>
                       </Link>
                     ))}
                   </div>
-                )}
-              </div>
+                  )}
+                </div>
             </div>
           </div>
         </main>
