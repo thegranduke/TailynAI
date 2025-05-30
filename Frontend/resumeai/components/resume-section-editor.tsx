@@ -2,10 +2,9 @@ import { useResumeStore } from "@/store/useResumeStore";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, GripVertical, ChevronDown } from "lucide-react";
+import { Plus, Trash2, ChevronDown } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   Collapsible,
   CollapsibleContent,
@@ -19,8 +18,8 @@ interface ResumeSectionEditorProps {
 
 const inputStyles = {
   base: "w-full focus-visible:ring-1 focus-visible:ring-[#D96E36] focus-visible:ring-offset-0 placeholder:text-[#666]/50 border-[#ece7df]",
-  title: "text-lg font-medium bg-transparent border-0 border-[#ece7df]",
-  subtitle: "text-base bg-transparent border-0 border-[#ece7df]",
+  title: "text-base font-medium bg-transparent border-0 text-[#222]",
+  subtitle: "text-sm bg-transparent border-0 text-[#666]",
   content: "min-h-[100px] text-sm resize-vertical bg-[#FFFEFB] border-[#ece7df]",
 };
 
@@ -88,38 +87,25 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
   const renderExperienceSection = () => (
     <div className="space-y-4">
       {experiences?.map((exp, index) => (
-        <Collapsible key={index} defaultOpen={true} className="group border border-[#ece7df] rounded-lg overflow-hidden bg-white">
-          <div className="flex items-center gap-2 px-6 py-4">
-            <GripVertical className="w-4 h-4 text-[#666] opacity-0 group-hover:opacity-100 transition-opacity cursor-move" />
-            <div className="flex-1">
-              <CollapsibleTrigger className="flex items-center w-full group/title">
-                <Input
-                  value={exp.company}
-                  onChange={(e) => {
-                    const newExperiences = [...experiences];
-                    newExperiences[index] = { ...exp, company: e.target.value };
-                    setExperiences(newExperiences);
-                  }}
-                  className={cn(inputStyles.base, inputStyles.title)}
-                  placeholder="Company Name"
-                />
-                <ChevronDown className="w-4 h-4 text-[#666] transition-transform duration-200 ease-in-out group-data-[state=open]/title:rotate-180" />
-              </CollapsibleTrigger>
+        <Collapsible key={index} className="group border border-[#ece7df] rounded-lg overflow-hidden bg-white">
+          <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 hover:bg-[#FCF9F4] transition-colors">
+            <div className="flex-1 text-left">
+              <Input
+                value={exp.company || 'Untitled Company'}
+                onChange={(e) => {
+                  const newExperiences = [...experiences];
+                  newExperiences[index] = { ...exp, company: e.target.value };
+                  setExperiences(newExperiences);
+                }}
+                className={cn(inputStyles.base, inputStyles.title, "border-0 p-0 hover:bg-transparent")}
+                placeholder="Company Name"
+                onClick={(e) => e.stopPropagation()}
+              />
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-[#666] hover:text-red-500 hover:bg-transparent"
-              onClick={() => {
-                const newExperiences = experiences.filter((_, i) => i !== index);
-                setExperiences(newExperiences);
-              }}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
+            <ChevronDown className="w-4 h-4 text-[#666] transition-transform duration-200 group-data-[state=open]:rotate-180" />
+          </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="px-6 pb-6 space-y-4 bg-[#FFFEFB] border-t border-[#ece7df]">
+            <div className="px-4 pb-4 space-y-4 bg-[#FFFEFB] border-t border-[#ece7df]">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-[#666]">Position</Label>
                 <Input
@@ -129,7 +115,7 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
                     newExperiences[index] = { ...exp, position: e.target.value };
                     setExperiences(newExperiences);
                   }}
-                  className={cn(inputStyles.base, inputStyles.subtitle)}
+                  className={cn(inputStyles.base)}
                   placeholder="Your role at the company"
                 />
               </div>
@@ -159,6 +145,18 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
                   placeholder="• Describe your key responsibilities and achievements&#13;• Use bullet points for better readability&#13;• Focus on quantifiable results"
                 />
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full text-red-500 hover:text-red-600 hover:bg-red-50"
+                onClick={() => {
+                  const newExperiences = experiences.filter((_, i) => i !== index);
+                  setExperiences(newExperiences);
+                }}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Remove Experience
+              </Button>
             </div>
           </CollapsibleContent>
         </Collapsible>
@@ -182,38 +180,25 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
   const renderEducationSection = () => (
     <div className="space-y-4">
       {education?.map((edu, index) => (
-        <Collapsible key={index} defaultOpen={true} className="group border border-[#ece7df] rounded-lg overflow-hidden bg-white">
-          <div className="flex items-center gap-2 px-6 py-4">
-            <GripVertical className="w-4 h-4 text-[#666] opacity-0 group-hover:opacity-100 transition-opacity cursor-move" />
-            <div className="flex-1">
-              <CollapsibleTrigger className="flex items-center w-full group/title">
-                <Input
-                  value={edu.institution}
-                  onChange={(e) => {
-                    const newEducation = [...education];
-                    newEducation[index] = { ...edu, institution: e.target.value };
-                    setEducation(newEducation);
-                  }}
-                  className={cn(inputStyles.base, inputStyles.title)}
-                  placeholder="Institution Name"
-                />
-                <ChevronDown className="w-4 h-4 text-[#666] transition-transform duration-200 ease-in-out group-data-[state=open]/title:rotate-180" />
-              </CollapsibleTrigger>
+        <Collapsible key={index} className="group border border-[#ece7df] rounded-lg overflow-hidden bg-white">
+          <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 hover:bg-[#FCF9F4] transition-colors">
+            <div className="flex-1 text-left">
+              <Input
+                value={edu.institution || 'Untitled Institution'}
+                onChange={(e) => {
+                  const newEducation = [...education];
+                  newEducation[index] = { ...edu, institution: e.target.value };
+                  setEducation(newEducation);
+                }}
+                className={cn(inputStyles.base, inputStyles.title, "border-0 p-0 hover:bg-transparent")}
+                placeholder="Institution Name"
+                onClick={(e) => e.stopPropagation()}
+              />
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-[#666] hover:text-red-500 hover:bg-transparent"
-              onClick={() => {
-                const newEducation = education.filter((_, i) => i !== index);
-                setEducation(newEducation);
-              }}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
+            <ChevronDown className="w-4 h-4 text-[#666] transition-transform duration-200 group-data-[state=open]:rotate-180" />
+          </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="px-6 pb-6 space-y-4 bg-[#FFFEFB] border-t border-[#ece7df]">
+            <div className="px-4 pb-4 space-y-4 bg-[#FFFEFB] border-t border-[#ece7df]">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-[#666]">Degree</Label>
                 <Input
@@ -223,7 +208,7 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
                     newEducation[index] = { ...edu, degree: e.target.value };
                     setEducation(newEducation);
                   }}
-                  className={cn(inputStyles.base, inputStyles.subtitle)}
+                  className={cn(inputStyles.base)}
                   placeholder="e.g. Bachelor of Science in Computer Science"
                 />
               </div>
@@ -240,6 +225,18 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
                   placeholder="e.g. 2018 - 2022"
                 />
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full text-red-500 hover:text-red-600 hover:bg-red-50"
+                onClick={() => {
+                  const newEducation = education.filter((_, i) => i !== index);
+                  setEducation(newEducation);
+                }}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Remove Education
+              </Button>
             </div>
           </CollapsibleContent>
         </Collapsible>
@@ -270,7 +267,7 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
               <Badge
                 key={index}
                 variant="secondary"
-                className="bg-[#FFFEFB] hover:bg-[#FFFEFB] text-[#666] border border-[#ece7df] group px-3 py-1.5 text-sm transition-colors hover:border-[#D96E36]/30"
+                className="group bg-[#FCF9F4] hover:bg-[#FCF9F4] text-[#666] border border-[#ece7df]"
               >
                 {skill.name}
                 <Button
@@ -320,48 +317,50 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
   const renderProjectsSection = () => (
     <div className="space-y-4">
       {projects?.map((project, index) => (
-        <Collapsible key={index} defaultOpen={true} className="group border border-[#ece7df] rounded-lg overflow-hidden bg-white hover:border-[#D96E36]/30 transition-colors">
-          <div className="flex items-center gap-2 px-4 py-3">
-            <GripVertical className="w-4 h-4 text-[#666] opacity-0 group-hover:opacity-100 transition-opacity cursor-move" />
-            <div className="flex-1">
-              <CollapsibleTrigger className="flex items-center w-full group/title">
-                <Input
-                  value={project.name}
-                  onChange={(e) => {
-                    const newProjects = [...projects];
-                    newProjects[index] = { ...project, name: e.target.value };
-                    setProjects(newProjects);
-                  }}
-                  className={cn(inputStyles.base, inputStyles.title)}
-                  placeholder="Project Name"
-                />
-                <ChevronDown className="w-4 h-4 text-[#666] transition-transform duration-200 ease-in-out group-data-[state=open]/title:rotate-180" />
-              </CollapsibleTrigger>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-[#666] hover:text-red-500 hover:bg-transparent -my-2"
-              onClick={() => {
-                const newProjects = projects.filter((_, i) => i !== index);
-                setProjects(newProjects);
-              }}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-          <CollapsibleContent>
-            <div className="px-4 pb-4 space-y-3 bg-[#FFFEFB] border-t border-[#ece7df]">
-              <Textarea
-                value={project.description}
+        <Collapsible key={index} className="group border border-[#ece7df] rounded-lg overflow-hidden bg-white">
+          <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 hover:bg-[#FCF9F4] transition-colors">
+            <div className="flex-1 text-left">
+              <Input
+                value={project.name || 'Untitled Project'}
                 onChange={(e) => {
                   const newProjects = [...projects];
-                  newProjects[index] = { ...project, description: e.target.value };
+                  newProjects[index] = { ...project, name: e.target.value };
                   setProjects(newProjects);
                 }}
-                className={cn(inputStyles.base, inputStyles.content, "resize-none min-h-[80px]")}
-                placeholder="Description"
+                className={cn(inputStyles.base, inputStyles.title, "border-0 p-0 hover:bg-transparent")}
+                placeholder="Project Name"
+                onClick={(e) => e.stopPropagation()}
               />
+            </div>
+            <ChevronDown className="w-4 h-4 text-[#666] transition-transform duration-200 group-data-[state=open]:rotate-180" />
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-4 pb-4 space-y-4 bg-[#FFFEFB] border-t border-[#ece7df]">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-[#666]">Description</Label>
+                <Textarea
+                  value={project.description}
+                  onChange={(e) => {
+                    const newProjects = [...projects];
+                    newProjects[index] = { ...project, description: e.target.value };
+                    setProjects(newProjects);
+                  }}
+                  className={cn(inputStyles.base, inputStyles.content)}
+                  placeholder="• Describe the project's purpose and your role&#13;• Highlight key technologies used&#13;• Mention notable achievements or metrics"
+                />
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full text-red-500 hover:text-red-600 hover:bg-red-50"
+                onClick={() => {
+                  const newProjects = projects.filter((_, i) => i !== index);
+                  setProjects(newProjects);
+                }}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Remove Project
+              </Button>
             </div>
           </CollapsibleContent>
         </Collapsible>
@@ -382,17 +381,18 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
     </div>
   );
 
-  const sectionContent = {
-    basics: renderBasicsSection,
-    experience: renderExperienceSection,
-    education: renderEducationSection,
-    skills: renderSkillsSection,
-    projects: renderProjectsSection,
-  };
-
-  return (
-    <div className="p-4">
-      {sectionContent[section as keyof typeof sectionContent]?.()}
-    </div>
-  );
+  switch (section) {
+    case 'basics':
+      return renderBasicsSection();
+    case 'experience':
+      return renderExperienceSection();
+    case 'education':
+      return renderEducationSection();
+    case 'skills':
+      return renderSkillsSection();
+    case 'projects':
+      return renderProjectsSection();
+    default:
+      return null;
+  }
 } 
