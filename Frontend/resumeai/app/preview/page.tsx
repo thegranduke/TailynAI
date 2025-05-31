@@ -44,7 +44,7 @@ export default function PreviewPage() {
 
   const { user } = useUser();
   const searchParams = useSearchParams();
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,7 +72,7 @@ export default function PreviewPage() {
     <div className="flex min-h-screen bg-[#FCF9F4]">
       <SidebarProvider style={{ "--sidebar-width": "450px" } as React.CSSProperties}>
         <Sidebar className="border-r border-[#ece7df] bg-[#FFFEFB]">
-          <SidebarContent className="flex flex-col h-full">
+          <SidebarContent className="flex flex-col h-full gap-0">
             {/* Header */}
             <div className="shrink-0 border-b border-[#ece7df]">
               <div className="px-4 h-14 flex items-center justify-between">
@@ -138,13 +138,13 @@ export default function PreviewPage() {
             </div>
 
             {/* Scrollable Content */}
-            <ScrollArea className="flex-1 px-6">
-              <div className="py-6 pr-4">
+            <ScrollArea className="flex-1">
+              <div className="">
                 <ResumeSectionEditor section={activeSection} />
               </div>
             </ScrollArea>
-          </SidebarContent>
-        </Sidebar>
+            </SidebarContent>
+          </Sidebar>
 
         {/* Main Preview Area */}
         <main className="flex-1 min-h-screen flex flex-col">
@@ -156,8 +156,8 @@ export default function PreviewPage() {
                 <ResumePreview />
               )}
             </div>
-          </div>
-        </main>
+            </div>
+          </main>
       </SidebarProvider>
     </div>
   );
