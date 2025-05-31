@@ -95,37 +95,40 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
             "group border-b border-[#ece7df] bg-white",
             isDragging && "relative z-50"
           )}>
-            <CollapsibleTrigger className="group/item flex items-center justify-between w-full px-6 py-4 transition-colors gap-2">
-              <div className="flex items-center gap-3 flex-1">
-                <div {...dragHandleProps}>
-                  <GripVertical className="w-4 h-4" />
+            <CollapsibleTrigger asChild>
+              <div className="group/item flex items-center justify-between w-full px-6 py-4 transition-colors gap-2 cursor-pointer">
+                <div className="flex items-center gap-3 flex-1">
+                  <div {...dragHandleProps}>
+                    <GripVertical className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1">
+                    <Input
+                      value={exp.company || 'Untitled Company'}
+                      onChange={(e) => {
+                        const newExperiences = [...experiences];
+                        const index = experiences.findIndex(x => x.id === exp.id);
+                        newExperiences[index] = { ...exp, company: e.target.value };
+                        setExperiences(newExperiences);
+                      }}
+                      className={cn(inputStyles.base, inputStyles.title, "border-0 group-data-[state=open]:border-[1px] group-data-[state=open]:border-[#ece7df] hover:bg-transparent")}
+                      placeholder="Company Name"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <Input
-                    value={exp.company || 'Untitled Company'}
-                    onChange={(e) => {
-                      const newExperiences = [...experiences];
-                      const index = experiences.findIndex(x => x.id === exp.id);
-                      newExperiences[index] = { ...exp, company: e.target.value };
-                      setExperiences(newExperiences);
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExperiences(experiences.filter(x => x.id !== exp.id));
                     }}
-                    className={cn(inputStyles.base, inputStyles.title, "border-0 group-data-[state=open]:border-[1px] group-data-[state=open]:border-[#ece7df] hover:bg-transparent")}
-                    placeholder="Company Name"
-                    onClick={(e) => e.stopPropagation()}
-                  />
+                    className="text-[#666] hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <ChevronDown className="w-4 h-4 text-[#666] transition-all duration-200 group-data-[state=open]/item:rotate-180 group-hover/item:text-[#D96E36]" />
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setExperiences(experiences.filter(x => x.id !== exp.id));
-                  }}
-                  className="text-[#666] hover:text-red-500 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-                <ChevronDown className="w-4 h-4 text-[#666] transition-all duration-200 group-data-[state=open]/item:rotate-180 group-hover/item:text-[#D96E36]" />
               </div>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -203,37 +206,40 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
             "group border-b border-[#ece7df] bg-white",
             isDragging && "relative z-50"
           )}>
-            <CollapsibleTrigger className="group/item flex items-center justify-between w-full px-6 py-4 transition-colors gap-2">
-              <div className="flex items-center gap-3 flex-1">
-                <div {...dragHandleProps}>
-                  <GripVertical className="w-4 h-4" />
+            <CollapsibleTrigger asChild>
+              <div className="group/item flex items-center justify-between w-full px-6 py-4 transition-colors gap-2 cursor-pointer">
+                <div className="flex items-center gap-3 flex-1">
+                  <div {...dragHandleProps}>
+                    <GripVertical className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1">
+                    <Input
+                      value={edu.institution || 'Untitled Institution'}
+                      onChange={(e) => {
+                        const newEducation = [...education];
+                        const index = education.findIndex(x => x.id === edu.id);
+                        newEducation[index] = { ...edu, institution: e.target.value };
+                        setEducation(newEducation);
+                      }}
+                      className={cn(inputStyles.base, inputStyles.title, "border-0 group-data-[state=open]:border-[1px] group-data-[state=open]:border-[#ece7df] hover:bg-transparent")}
+                      placeholder="Institution Name"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <Input
-                    value={edu.institution || 'Untitled Institution'}
-                    onChange={(e) => {
-                      const newEducation = [...education];
-                      const index = education.findIndex(x => x.id === edu.id);
-                      newEducation[index] = { ...edu, institution: e.target.value };
-                      setEducation(newEducation);
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEducation(education.filter(x => x.id !== edu.id));
                     }}
-                    className={cn(inputStyles.base, inputStyles.title, "border-0 group-data-[state=open]:border-[1px] group-data-[state=open]:border-[#ece7df] hover:bg-transparent")}
-                    placeholder="Institution Name"
-                    onClick={(e) => e.stopPropagation()}
-                  />
+                    className="text-[#666] hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <ChevronDown className="w-4 h-4 text-[#666] transition-all duration-200 group-data-[state=open]/item:rotate-180 group-hover/item:text-[#D96E36]" />
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setEducation(education.filter(x => x.id !== edu.id));
-                  }}
-                  className="text-[#666] hover:text-red-500 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-                <ChevronDown className="w-4 h-4 text-[#666] transition-all duration-200 group-data-[state=open]/item:rotate-180 group-hover/item:text-[#D96E36]" />
               </div>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -354,37 +360,40 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
             "group border-b border-[#ece7df] bg-white",
             isDragging && "relative z-50"
           )}>
-            <CollapsibleTrigger className="group/item flex items-center justify-between w-full px-6 py-4 transition-colors gap-2">
-              <div className="flex items-center gap-3 flex-1">
-                <div {...dragHandleProps}>
-                  <GripVertical className="w-4 h-4" />
+            <CollapsibleTrigger asChild>
+              <div className="group/item flex items-center justify-between w-full px-6 py-4 transition-colors gap-2 cursor-pointer">
+                <div className="flex items-center gap-3 flex-1">
+                  <div {...dragHandleProps}>
+                    <GripVertical className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1">
+                    <Input
+                      value={project.name || 'Untitled Project'}
+                      onChange={(e) => {
+                        const newProjects = [...projects];
+                        const index = projects.findIndex(x => x.id === project.id);
+                        newProjects[index] = { ...project, name: e.target.value };
+                        setProjects(newProjects);
+                      }}
+                      className={cn(inputStyles.base, inputStyles.title, "border-0 group-data-[state=open]:border-[1px] group-data-[state=open]:border-[#ece7df] hover:bg-transparent")}
+                      placeholder="Project Name"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <Input
-                    value={project.name || 'Untitled Project'}
-                    onChange={(e) => {
-                      const newProjects = [...projects];
-                      const index = projects.findIndex(x => x.id === project.id);
-                      newProjects[index] = { ...project, name: e.target.value };
-                      setProjects(newProjects);
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setProjects(projects.filter(x => x.id !== project.id));
                     }}
-                    className={cn(inputStyles.base, inputStyles.title, "border-0 group-data-[state=open]:border-[1px] group-data-[state=open]:border-[#ece7df] hover:bg-transparent")}
-                    placeholder="Project Name"
-                    onClick={(e) => e.stopPropagation()}
-                  />
+                    className="text-[#666] hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <ChevronDown className="w-4 h-4 text-[#666] transition-all duration-200 group-data-[state=open]/item:rotate-180 group-hover/item:text-[#D96E36]" />
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setProjects(projects.filter(x => x.id !== project.id));
-                  }}
-                  className="text-[#666] hover:text-red-500 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-                <ChevronDown className="w-4 h-4 text-[#666] transition-all duration-200 group-data-[state=open]/item:rotate-180 group-hover/item:text-[#D96E36]" />
               </div>
             </CollapsibleTrigger>
             <CollapsibleContent>

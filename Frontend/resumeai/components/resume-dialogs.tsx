@@ -122,7 +122,7 @@ export function ImportResumeDialog({ open, onOpenChange }: CreateResumeDialogPro
 
     setLoading(true);
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("resume", file);
 
     try {
       const response = await fetch("/api/resume/import", {
@@ -131,13 +131,14 @@ export function ImportResumeDialog({ open, onOpenChange }: CreateResumeDialogPro
       });
 
       if (!response.ok) {
-        throw new Error("Failed to import resume");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to import resume");
       }
 
-      toast.success("Resume imported successfully!");
+      toast.success("Resume parsed successfully! Your profile has been updated.");
       onOpenChange(false);
     } catch (error) {
-      toast.error("Failed to import resume. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Failed to import resume. Please try again.");
     } finally {
       setLoading(false);
     }

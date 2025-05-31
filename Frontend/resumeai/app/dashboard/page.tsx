@@ -31,8 +31,6 @@ import {
 import { fetchProjects, fetchExperiences, fetchEducation, fetchSkills } from "@/lib/fetchResumeData";
 import ResumePreview from "@/components/ResumePreview";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Toaster } from "sonner";
 import { CreateResumeDialog, ImportResumeDialog } from "@/components/resume-dialogs";
 import { EditDialog } from "@/components/edit-dialog";

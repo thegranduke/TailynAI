@@ -22,7 +22,10 @@ import {
   GraduationCap,
   Zap,
   Rocket,
-  Plus
+  Plus,
+  Trash2,
+  GripVertical,
+  ChevronDown
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -35,6 +38,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import ResumePDF from "@/components/ResumePDF";
+import { pdf } from "@react-pdf/renderer";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface Experience {
   id: number;
@@ -73,6 +81,11 @@ const sections = [
 ];
 
 export default function PreviewPage() {
+  const personal = useResumeStore(s => s.personal);
+  const skills = useResumeStore(s => s.skills);
+  const experiences = useResumeStore(s => s.experiences);
+  const projects = useResumeStore(s => s.projects);
+  const education = useResumeStore(s => s.education);
   const setPersonal = useResumeStore(s => s.setPersonal);
   const setSkills = useResumeStore(s => s.setSkills);
   const setExperiences = useResumeStore(s => s.setExperiences);
@@ -151,17 +164,29 @@ export default function PreviewPage() {
     switch (type) {
       case 'experiences': {
         const exp = item as Experience;
-        setExperiences([...databaseItems.experiences, exp]);
+        const isExisting = experiences.some(e => e.id === exp.id);
+        if (!isExisting) {
+          const newExperiences = [...experiences, exp];
+          setExperiences(newExperiences);
+        }
         break;
       }
       case 'education': {
         const edu = item as Education;
-        setEducation([...databaseItems.education, edu]);
+        const isExisting = education.some(e => e.id === edu.id);
+        if (!isExisting) {
+          const newEducation = [...education, edu];
+          setEducation(newEducation);
+        }
         break;
       }
       case 'projects': {
         const proj = item as Project;
-        setProjects([...databaseItems.projects, proj]);
+        const isExisting = projects.some(p => p.id === proj.id);
+        if (!isExisting) {
+          const newProjects = [...projects, proj];
+          setProjects(newProjects);
+        }
         break;
       }
     }
@@ -178,6 +203,31 @@ export default function PreviewPage() {
     } else {
       const proj = item as Project;
       return proj.name;
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    try {
+      const blob = await pdf(
+        <ResumePDF
+          personal={personal}
+          skills={skills}
+          experiences={experiences}
+          projects={projects}
+          education={education}
+        />
+      ).toBlob();
+      
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${personal.name ? personal.name.replace(/\s+/g, '_') : 'resume'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to generate PDF:', error);
     }
   };
 
@@ -201,6 +251,7 @@ export default function PreviewPage() {
                     variant="ghost"
                     size="sm"
                     className="text-[#666] hover:text-[#222]"
+                    onClick={handleDownloadPDF}
                   >
                     <Download className="w-4 h-4" />
                   </Button>
@@ -247,48 +298,38 @@ export default function PreviewPage() {
             {/* Add from Database Section */}
             {activeSection !== 'basics' && activeSection !== 'skills' && (
               <div className="px-6 py-4 border-b border-[#ece7df] bg-[#FFFEFB]">
-                <div className="flex items-center gap-2">
-                  <Select 
-                    onValueChange={(value) => handleAddFromDatabase(
-                      activeSection === 'experience' ? 'experiences' : 
-                      activeSection === 'education' ? 'education' : 'projects', 
-                      value
-                    )}
-                  >
-                    <SelectTrigger className="w-full bg-white border-[#ece7df] text-[#666] hover:text-[#222]">
-                      <SelectValue placeholder={`Add existing ${activeSection}`} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel className="text-[#666]">Select from your database</SelectLabel>
-                        {databaseItems[
-                          activeSection === 'experience' ? 'experiences' : 
-                          activeSection === 'education' ? 'education' : 'projects'
-                        ].map((item) => {
-                          const type = activeSection === 'experience' ? 'experiences' : 
-                                     activeSection === 'education' ? 'education' : 'projects';
-                          return (
-                            <SelectItem 
-                              key={item.id} 
-                              value={item.id.toString()}
-                              className="text-[#222] hover:text-[#D96E36] cursor-pointer"
-                            >
-                              {getItemLabel(item, type)}
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="shrink-0 border-[#ece7df] hover:border-[#D96E36] hover:text-[#D96E36]"
-                    onClick={() => setActiveSection(activeSection)}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
+                <Select 
+                  onValueChange={(value) => handleAddFromDatabase(
+                    activeSection === 'experience' ? 'experiences' : 
+                    activeSection === 'education' ? 'education' : 'projects', 
+                    value
+                  )}
+                >
+                  <SelectTrigger className="w-full bg-white border-[#ece7df] text-[#666] hover:text-[#222]">
+                    <SelectValue placeholder={`Add existing ${activeSection}`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel className="text-[#666]">Select from your database</SelectLabel>
+                      {databaseItems[
+                        activeSection === 'experience' ? 'experiences' : 
+                        activeSection === 'education' ? 'education' : 'projects'
+                      ].map((item) => {
+                        const type = activeSection === 'experience' ? 'experiences' : 
+                                   activeSection === 'education' ? 'education' : 'projects';
+                        return (
+                          <SelectItem 
+                            key={item.id} 
+                            value={item.id.toString()}
+                            className="text-[#222] hover:text-[#D96E36] cursor-pointer"
+                          >
+                            {getItemLabel(item, type)}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
             )}
 

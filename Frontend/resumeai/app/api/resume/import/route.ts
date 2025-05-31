@@ -1,52 +1,46 @@
-import { createClient } from '@supabase/supabase-js';
-import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return new NextResponse('Unauthorized', { status: 401 });
+    const authObject = await auth();
+    if (!authObject.userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const formData = await request.formData();
-    const file = formData.get('file') as File;
-
-    if (!file) {
-      return new NextResponse('No file provided', { status: 400 });
+    const resume = formData.get("resume") as File;
+    if (!resume) {
+      return NextResponse.json({ error: "No resume file provided" }, { status: 400 });
     }
 
-    // TODO: Add actual resume parsing logic here
-    // For now, we'll just simulate a delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Create a new FormData instance for the backend request
+    const backendFormData = new FormData();
+    backendFormData.append("resume", resume);
 
-    // Create a new job entry
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    // Forward the request to the backend
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
+      method: "POST",
+      body: backendFormData,
+      headers: {
+        "Authorization": `Bearer ${await authObject.getToken()}`,
+      },
+    });
 
-    const { data, error } = await supabase
-      .from('job_descriptions')
-      .insert([
-        {
-          profile_id: userId,
-          title: 'Imported Resume',
-          company: 'Previous Company',
-          raw_description: 'Imported from PDF'
-        }
-      ])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error creating job:', error);
-      return new NextResponse('Failed to create job', { status: 500 });
+    if (!response.ok) {
+      const errorData = await response.json();
+      return NextResponse.json(
+        { error: errorData.error || "Failed to process resume" },
+        { status: response.status }
+      );
     }
 
-    return NextResponse.json({ job_id: data.id });
+    return NextResponse.json({ message: "Resume processed successfully" });
   } catch (error) {
-    console.error('Error in POST /api/resume/import:', error);
-    return new NextResponse('Internal Error', { status: 500 });
+    console.error("Error processing resume:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 } 
