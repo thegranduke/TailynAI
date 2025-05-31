@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { fetchProjects, fetchExperiences, fetchEducation, fetchSkills } from "@/lib/fetchResumeData";
 import ResumePreview from "@/components/ResumePreview";
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter } from "@/components/ui/dialog";
 import { Toaster } from "sonner";
 import { CreateResumeDialog, ImportResumeDialog } from "@/components/resume-dialogs";
 import { EditDialog } from "@/components/edit-dialog";
@@ -193,6 +193,8 @@ export default function DashboardPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState<{ type: string; id: number } | null>(null);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -235,7 +237,11 @@ export default function DashboardPage() {
   }
   function startProjectEdit(project: any) {
     setEditingProject(project.id);
-    setProjectEdits({ ...project });
+    setProjectEdits({
+      name: project.name,
+      description: project.description,
+      link: project.link || ''
+    });
   }
   function cancelProjectEdit() {
     setEditingProject(null);
@@ -259,7 +265,12 @@ export default function DashboardPage() {
   }
   function startExperienceEdit(exp: any) {
     setEditingExperience(exp.id);
-    setExperienceEdits({ ...exp });
+    setExperienceEdits({
+      position: exp.position,
+      company: exp.company,
+      duration: exp.duration,
+      description: exp.description
+    });
   }
   function cancelExperienceEdit() {
     setEditingExperience(null);
@@ -335,7 +346,11 @@ export default function DashboardPage() {
   }
   function startEducationEdit(edu: any) {
     setEditingEducation(edu.id);
-    setEducationEdits({ ...edu });
+    setEducationEdits({
+      degree: edu.degree,
+      institution: edu.institution,
+      year: edu.year
+    });
   }
   function cancelEducationEdit() {
     setEditingEducation(null);
@@ -370,24 +385,38 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleDelete(type: string, id: number) {
+  const handleDeleteClick = (type: string, id: number) => {
+    setDeleteItem({ type, id });
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteItem || !user?.id) return;
+    
     const { createClient } = await import("@supabase/supabase-js");
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
-    if (type === 'project') {
-      await supabase.from('projects').delete().eq('id', id);
-      setProjects(projects => projects.filter(p => p.id !== id));
-    } else if (type === 'experience') {
-      await supabase.from('work_experiences').delete().eq('id', id);
-      setExperiences(experiences => experiences.filter(e => e.id !== id));
-    } else if (type === 'education') {
-      await supabase.from('education').delete().eq('id', id);
-      setEducation(education => education.filter(e => e.id !== id));
+
+    switch (deleteItem.type) {
+      case 'project':
+        await supabase.from('projects').delete().eq('id', deleteItem.id);
+        setProjects(projects => projects.filter(p => p.id !== deleteItem.id));
+        break;
+      case 'experience':
+        await supabase.from('work_experiences').delete().eq('id', deleteItem.id);
+        setExperiences(experiences => experiences.filter(e => e.id !== deleteItem.id));
+        break;
+      case 'education':
+        await supabase.from('education').delete().eq('id', deleteItem.id);
+        setEducation(education => education.filter(e => e.id !== deleteItem.id));
+        break;
     }
-    setDeleteModal({ type: '', id: null });
-  }
+
+    setDeleteConfirmOpen(false);
+    setDeleteItem(null);
+  };
 
   return (
     <div className="flex min-h-screen bg-[#FCF9F4]">
@@ -563,8 +592,7 @@ export default function DashboardPage() {
                     <Button 
                       onClick={() => {
                         setProjectEdits({});
-                        setEditingProject(null);
-                        setCreateDialogOpen(true);
+                        setEditingProject(-1);
                       }} 
                       className="bg-[#D96E36] text-white hover:bg-[#b85a28]"
                     >
@@ -573,18 +601,12 @@ export default function DashboardPage() {
                   </div>
                   <div className="divide-y divide-[#ece7df]">
                     {projects.map((project) => (
-                      <div key={project.id} className="p-6 hover:bg-white/60 transition-colors group">
-                        <div className="flex justify-between items-start">
-                          <div className="space-y-2 flex-1">
-                            <div className="flex items-start justify-between">
-                              <h3 className="text-lg font-medium text-[#222] group-hover:text-[#D96E36] transition-colors">
-                                {project.name}
-                              </h3>
-                              <Button variant="ghost" size="sm" onClick={() => startProjectEdit(project)} 
-                                className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                Edit
-                              </Button>
-                            </div>
+                      <div key={project.id} className="p-6 hover:bg-white/60 transition-colors">
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="space-y-2 flex-1 min-w-0">
+                            <h3 className="text-lg font-medium text-[#222] hover:text-[#D96E36] transition-colors">
+                              {project.name}
+                            </h3>
                             <p className="text-[#666] leading-relaxed">{project.description}</p>
                             {project.link && (
                               <a 
@@ -597,6 +619,16 @@ export default function DashboardPage() {
                                 <ChevronRight className="w-4 h-4 ml-1" />
                               </a>
                             )}
+                          </div>
+                          <div className="flex gap-2 shrink-0">
+                            <Button variant="ghost" size="sm" onClick={() => startProjectEdit(project)} 
+                              className="text-[#666] hover:text-[#D96E36]">
+                              Edit
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleDeleteClick('project', project.id)} 
+                              className="text-red-600 hover:text-red-700">
+                              Delete
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -617,8 +649,7 @@ export default function DashboardPage() {
                     <Button 
                       onClick={() => {
                         setExperienceEdits({});
-                        setEditingExperience(null);
-                        setCreateDialogOpen(true);
+                        setEditingExperience(-1);
                       }}
                       className="bg-[#D96E36] text-white hover:bg-[#b85a28]"
                     >
@@ -627,35 +658,37 @@ export default function DashboardPage() {
                   </div>
                   <div className="divide-y divide-[#ece7df]">
                     {experiences.map((experience) => (
-                      <div key={experience.id} className="p-6 hover:bg-white/60 transition-colors group">
-                        <div className="flex justify-between items-start">
-                          <div className="space-y-2 flex-1">
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <h3 className="text-lg font-medium text-[#222] group-hover:text-[#D96E36] transition-colors">
-                                  {experience.position}
-                                </h3>
-                                <p className="text-[#666]">{experience.company}</p>
-                              </div>
-                              <Button variant="ghost" size="sm" onClick={() => startExperienceEdit(experience)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                Edit
-                              </Button>
-                            </div>
+                      <div key={experience.id} className="p-6 hover:bg-white/60 transition-colors">
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="space-y-2 flex-1 min-w-0">
+                            <h3 className="text-lg font-medium text-[#222] hover:text-[#D96E36] transition-colors">
+                              {experience.position}
+                            </h3>
+                            <p className="text-[#666]">{experience.company}</p>
                             <p className="text-sm text-[#666]">{experience.duration}</p>
                             <p className="text-[#666] leading-relaxed">{experience.description}</p>
                           </div>
-                                  </div>
-                                </div>
+                          <div className="flex gap-2 shrink-0">
+                            <Button variant="ghost" size="sm" onClick={() => startExperienceEdit(experience)}
+                              className="text-[#666] hover:text-[#D96E36]">
+                              Edit
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleDeleteClick('experience', experience.id)}
+                              className="text-red-600 hover:text-red-700">
+                              Delete
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     ))}
                     {experiences.length === 0 && (
                       <div className="p-6 text-center text-[#666]">
                         No work experience yet. Add your first position to get started.
                       </div>
                     )}
-                                  </div>
-                                </div>
-                              )}
+                  </div>
+                </div>
+              )}
 
               {activeSection === "Education" && (
                 <div className="w-full bg-white/40 backdrop-blur-sm rounded-sm border border-[#ece7df] shadow-[0_1px_3px_0_rgb(0,0,0,0.05)] animate-in fade-in slide-in-from-top-4 duration-300">
@@ -664,8 +697,7 @@ export default function DashboardPage() {
                     <Button 
                       onClick={() => {
                         setEducationEdits({});
-                        setEditingEducation(null);
-                        setCreateDialogOpen(true);
+                        setEditingEducation(-1);
                       }}
                       className="bg-[#D96E36] text-white hover:bg-[#b85a28]"
                     >
@@ -674,25 +706,27 @@ export default function DashboardPage() {
                   </div>
                   <div className="divide-y divide-[#ece7df]">
                     {education.map((edu) => (
-                      <div key={edu.id} className="p-6 hover:bg-white/60 transition-colors group">
-                        <div className="flex justify-between items-start">
-                          <div className="space-y-2 flex-1">
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <h3 className="text-lg font-medium text-[#222] group-hover:text-[#D96E36] transition-colors">
-                                  {edu.degree}
-                                </h3>
-                                <p className="text-[#666]">{edu.institution}</p>
-                              </div>
-                              <Button variant="ghost" size="sm" onClick={() => startEducationEdit(edu)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                Edit
-                              </Button>
-                            </div>
+                      <div key={edu.id} className="p-6 hover:bg-white/60 transition-colors">
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="space-y-2 flex-1 min-w-0">
+                            <h3 className="text-lg font-medium text-[#222] hover:text-[#D96E36] transition-colors">
+                              {edu.degree}
+                            </h3>
+                            <p className="text-[#666]">{edu.institution}</p>
                             <p className="text-sm text-[#666]">{edu.year}</p>
                           </div>
+                          <div className="flex gap-2 shrink-0">
+                            <Button variant="ghost" size="sm" onClick={() => startEducationEdit(edu)}
+                              className="text-[#666] hover:text-[#D96E36]">
+                              Edit
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleDeleteClick('education', edu.id)}
+                              className="text-red-600 hover:text-red-700">
+                              Delete
+                            </Button>
+                          </div>
                         </div>
-                </div>
+                      </div>
                     ))}
                     {education.length === 0 && (
                       <div className="p-6 text-center text-[#666]">
@@ -828,6 +862,26 @@ export default function DashboardPage() {
           }
         }}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you sure?</DialogTitle>
+          </DialogHeader>
+          <p className="py-4">
+            This will permanently delete this {deleteItem?.type}. This action cannot be undone.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Toast Container */}
       <Toaster />
