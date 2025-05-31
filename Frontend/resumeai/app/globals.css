@@ -120,3 +120,29 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom Scrollbar Styling */
+.scrollarea-content {
+  width: 100% !important;
+}
+
+.scrollbar {
+  width: 6px !important;
+  background-color: transparent;
+}
+
+.thumb {
+  background-color: rgba(102, 102, 102, 0.2);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.thumb:hover {
+  background-color: rgba(102, 102, 102, 0.3);
+}
+
+/* Ensure content doesn't shift */
+.scrollarea-viewport {
+  margin-right: -6px !important;
+  padding-right: 6px !important;
+}

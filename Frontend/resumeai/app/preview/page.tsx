@@ -21,10 +21,48 @@ import {
   Briefcase,
   GraduationCap,
   Zap,
-  Rocket
+  Rocket,
+  Plus
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+interface Experience {
+  id: number;
+  position: string;
+  company: string;
+  duration: string;
+  description: string;
+}
+
+interface Education {
+  id: number;
+  degree: string;
+  institution: string;
+  year: string;
+}
+
+interface Project {
+  id: number;
+  name: string;
+  description: string;
+  link?: string;
+}
+
+interface DatabaseItems {
+  experiences: Experience[];
+  education: Education[];
+  projects: Project[];
+}
 
 const sections = [
   { id: 'basics', label: 'Basic Info', icon: User2 },
@@ -41,12 +79,49 @@ export default function PreviewPage() {
   const setProjects = useResumeStore(s => s.setProjects);
   const setEducation = useResumeStore(s => s.setEducation);
   const [activeSection, setActiveSection] = useState('basics');
+  
+  // State for database items
+  const [databaseItems, setDatabaseItems] = useState<DatabaseItems>({
+    experiences: [],
+    education: [],
+    projects: [],
+  });
 
   const { user } = useUser();
   const searchParams = useSearchParams();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Fetch database items
+  useEffect(() => {
+    if (!user?.id) return;
+    const fetchDatabaseItems = async () => {
+      try {
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        const [experiencesRes, educationRes, projectsRes] = await Promise.all([
+          supabase.from('work_experiences').select('*').eq('profile_id', user.id),
+          supabase.from('education').select('*').eq('profile_id', user.id),
+          supabase.from('projects').select('*').eq('profile_id', user.id),
+        ]);
+
+        setDatabaseItems({
+          experiences: experiencesRes.data as Experience[] || [],
+          education: educationRes.data as Education[] || [],
+          projects: projectsRes.data as Project[] || [],
+        });
+      } catch (err) {
+        console.error('Failed to fetch database items:', err);
+      }
+    };
+
+    fetchDatabaseItems();
+  }, [user?.id]);
 
   useEffect(() => {
     const job_id = searchParams.get("job_id");
@@ -67,6 +142,44 @@ export default function PreviewPage() {
         setLoading(false);
       });
   }, [user?.id, searchParams]);
+
+  // Function to add items from database
+  const handleAddFromDatabase = (type: 'experiences' | 'education' | 'projects', itemId: string) => {
+    const item = databaseItems[type].find(i => i.id.toString() === itemId);
+    if (!item) return;
+
+    switch (type) {
+      case 'experiences': {
+        const exp = item as Experience;
+        setExperiences([...databaseItems.experiences, exp]);
+        break;
+      }
+      case 'education': {
+        const edu = item as Education;
+        setEducation([...databaseItems.education, edu]);
+        break;
+      }
+      case 'projects': {
+        const proj = item as Project;
+        setProjects([...databaseItems.projects, proj]);
+        break;
+      }
+    }
+  };
+
+  // Helper function to render item label
+  const getItemLabel = (item: Experience | Education | Project, type: 'experiences' | 'education' | 'projects'): string => {
+    if (type === 'experiences') {
+      const exp = item as Experience;
+      return `${exp.position} at ${exp.company}`;
+    } else if (type === 'education') {
+      const edu = item as Education;
+      return `${edu.degree} at ${edu.institution}`;
+    } else {
+      const proj = item as Project;
+      return proj.name;
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-[#FCF9F4]">
@@ -102,7 +215,7 @@ export default function PreviewPage() {
 
               {/* Section Navigation */}
               <div className="p-4 pb-0">
-                <nav className="bg-[#FCF9F4]/50 rounded-lg p-1.5 flex items-center gap-1">
+                <nav className="bg-white rounded-lg p-1.5 flex items-center gap-1 border border-[#ece7df]">
                   {sections.map((section) => {
                     const Icon = section.icon;
                     return (
@@ -111,8 +224,8 @@ export default function PreviewPage() {
                         onClick={() => setActiveSection(section.id)}
                         className={`flex-1 p-2 rounded-md transition-all ${
                           activeSection === section.id
-                            ? 'text-[#D96E36]'
-                            : 'text-[#666] hover:text-[#222] hover:bg-white/50'
+                            ? 'bg-[#D96E36]/5 text-[#D96E36]'
+                            : 'text-[#666] hover:text-[#222] hover:bg-[#FCF9F4]'
                         }`}
                         title={section.label}
                       >
@@ -124,18 +237,60 @@ export default function PreviewPage() {
               </div>
 
               {/* Section Title */}
-              <div className="px-6 py-4 flex items-center justify-between">
-                <h2 className="text-sm font-medium text-[#222]">
+              <div className="py-3 text-center">
+                <h2 className="text-lg font-medium tracking-wide text-[#222]">
                   {sections.find(s => s.id === activeSection)?.label}
                 </h2>
-                <span className="text-xs text-[#666]">
-                  {activeSection === 'basics' ? 'Personal Information' : 
-                   activeSection === 'experience' ? 'Work History' :
-                   activeSection === 'education' ? 'Academic Background' :
-                   activeSection === 'skills' ? 'Technical Skills' : 'Portfolio'}
-                </span>
               </div>
             </div>
+
+            {/* Add from Database Section */}
+            {activeSection !== 'basics' && activeSection !== 'skills' && (
+              <div className="px-6 py-4 border-b border-[#ece7df] bg-[#FFFEFB]">
+                <div className="flex items-center gap-2">
+                  <Select 
+                    onValueChange={(value) => handleAddFromDatabase(
+                      activeSection === 'experience' ? 'experiences' : 
+                      activeSection === 'education' ? 'education' : 'projects', 
+                      value
+                    )}
+                  >
+                    <SelectTrigger className="w-full bg-white border-[#ece7df] text-[#666] hover:text-[#222]">
+                      <SelectValue placeholder={`Add existing ${activeSection}`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel className="text-[#666]">Select from your database</SelectLabel>
+                        {databaseItems[
+                          activeSection === 'experience' ? 'experiences' : 
+                          activeSection === 'education' ? 'education' : 'projects'
+                        ].map((item) => {
+                          const type = activeSection === 'experience' ? 'experiences' : 
+                                     activeSection === 'education' ? 'education' : 'projects';
+                          return (
+                            <SelectItem 
+                              key={item.id} 
+                              value={item.id.toString()}
+                              className="text-[#222] hover:text-[#D96E36] cursor-pointer"
+                            >
+                              {getItemLabel(item, type)}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="shrink-0 border-[#ece7df] hover:border-[#D96E36] hover:text-[#D96E36]"
+                    onClick={() => setActiveSection(activeSection)}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Scrollable Content */}
             <ScrollArea className="flex-1">

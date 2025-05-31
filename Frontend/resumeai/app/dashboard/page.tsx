@@ -33,6 +33,10 @@ import ResumePreview from "@/components/ResumePreview";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Toaster } from "sonner";
+import { CreateResumeDialog, ImportResumeDialog } from "@/components/resume-dialogs";
+import { EditDialog } from "@/components/edit-dialog";
+import { Input } from "@/components/ui/input";
 
 const sidebarLinks = [
   { label: "Resumes", section: "Resumes" },
@@ -111,7 +115,7 @@ function DashboardSidebar({ setActiveSection, activeSection }: { setActiveSectio
     <Sidebar className="border-r border-[#ece7df] bg-[#FFFEFB] w-64 h-full">
       <div className="p-6">
         <Link href="/dashboard" className="flex items-center gap-2 mb-8">
-          <span className="text-2xl font-bold text-[#D96E36]">Rx</span>
+          <span className="text-2xl font-bold text-[#D96E36]">Taylin</span>
         </Link>
         <nav>
               {sidebarLinks.map(link => (
@@ -132,6 +136,33 @@ function DashboardSidebar({ setActiveSection, activeSection }: { setActiveSectio
       <SidebarAccountFooter />
     </Sidebar>
   );
+}
+
+interface Project {
+  id: number;
+  name: string;
+  description: string;
+  link?: string;
+}
+
+interface Experience {
+  id: number;
+  position: string;
+  company: string;
+  duration: string;
+  description: string;
+}
+
+interface Education {
+  id: number;
+  degree: string;
+  institution: string;
+  year: string;
+}
+
+interface Skill {
+  id: number;
+  name: string;
 }
 
 export default function DashboardPage() {
@@ -162,6 +193,8 @@ export default function DashboardPage() {
   const [newEducation, setNewEducation] = useState({ degree: '', institution: '', year: '', description: '' });
   const [deleteModal, setDeleteModal] = useState({ type: '', id: null });
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -362,7 +395,6 @@ export default function DashboardPage() {
     <div className="flex min-h-screen bg-[#FCF9F4]">
       <SidebarProvider>
           <DashboardSidebar setActiveSection={setActiveSection} activeSection={activeSection} />
-          {/* Main Content */}
         <main className="flex-1 min-h-screen flex flex-col">
           <div className="flex-1 flex flex-col p-6">
             <div className="flex-1 flex flex-col">
@@ -400,129 +432,407 @@ export default function DashboardPage() {
             </div>
 
               {/* Content */}
-              <div className={`transition-all duration-300 ease-in-out ${
-                viewMode === 'grid' 
-                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 opacity-100' 
-                : 'flex-1 flex justify-center opacity-100'
-              }`}>
-                {viewMode === 'grid' && (
-                  <>
-                    <Link href="/create-resume" className="block group [perspective:1000px] animate-in fade-in duration-300">
-                      <div className="relative aspect-[3/4] bg-[#222] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
-                        <div className="mb-6">
-                          <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
-                              <line x1="12" y1="5" x2="12" y2="19" />
-                              <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg>
-                </div>
-                      </div>
-                        <span className="text-lg font-medium">Create a new resume</span>
-                        <span className="text-sm text-white/70 mt-2">Start building from scratch</span>
-                      </div>
-                      </Link>
-                    <Link href="/import-resume" className="block group [perspective:1000px] animate-in fade-in duration-300">
-                      <div className="relative aspect-[3/4] bg-[#C4532D] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
-                        <div className="mb-6">
-                          <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
-                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                              <polyline points="7 10 12 15 17 10" />
-                              <line x1="12" y1="15" x2="12" y2="3" />
-                            </svg>
-                  </div>
-                        </div>
-                        <span className="text-lg font-medium">Import an existing...</span>
-                        <span className="text-sm text-white/70 mt-2">LinkedIn, JSON Resume, etc.</span>
-                      </div>
-                    </Link>
-                    {jobs.map(job => (
-                      <Link key={job.id} href={`/preview?job_id=${job.id}`} className="block group [perspective:1000px] animate-in fade-in duration-300">
-                        <div className="relative aspect-[3/4] border border-[#ece7df] bg-[#FFFEFB] rounded-sm p-6 transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
-                          <div className="relative h-full flex flex-col">
-                            <div className="mb-4 overflow-hidden">
-                              <h3 className="font-semibold text-xl text-[#222] mb-2 transition-colors truncate">{job.title}</h3>
-                              {job.company && (
-                                <span className="text-[#666] block truncate">{job.company}</span>
-                              )}
-                            </div>
-                            <div className="mt-auto">
-                              <span className="text-sm text-[#666]">Last updated {formatDate(job.created_at)}</span>
-                        </div>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </>
-                )}
-                {viewMode === 'list' && (
-                  <div className="w-full bg-white/40 backdrop-blur-sm rounded-sm border border-[#ece7df] shadow-[0_1px_3px_0_rgb(0,0,0,0.05)] animate-in fade-in slide-in-from-top-4 duration-300">
-                    <Link href="/create-resume" className="flex items-center gap-3 p-4 hover:bg-white/60 transition-colors duration-200 border-b border-[#ece7df]">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#222] text-white shadow-sm">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <line x1="12" y1="5" x2="12" y2="19" />
-                          <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-[#222]">Create a new resume</h3>
-                        <p className="text-sm text-[#666]">Start building from scratch</p>
-                            </div>
-                    </Link>
-                    <Link href="/import-resume" className="flex items-center gap-3 p-4 hover:bg-white/60 transition-colors duration-200 border-b border-[#ece7df]">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#D96E36] text-white shadow-sm">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                          <polyline points="7 10 12 15 17 10" />
-                          <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg>
-                                </div>
-                                <div>
-                        <h3 className="font-medium text-[#222]">Import an existing resume</h3>
-                        <p className="text-sm text-[#666]">LinkedIn, JSON Resume, etc.</p>
-                                  </div>
-                    </Link>
-                    {jobs.map((job, index) => (
-                      <Link 
-                        key={job.id}
-                        href={`/preview?job_id=${job.id}`} 
-                        className="flex items-center justify-between p-4 hover:bg-white/60 transition-colors duration-200 border-b border-[#ece7df] last:border-b-0"
+              {activeSection === "Resumes" && (
+                <div className={`transition-all duration-300 ease-in-out ${
+                  viewMode === 'grid' 
+                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 opacity-100' 
+                  : 'flex-1 flex justify-center opacity-100'
+                }`}>
+                  {viewMode === 'grid' && (
+                    <>
+                      <button 
+                        onClick={() => setCreateDialogOpen(true)}
+                        className="block group [perspective:1000px] animate-in fade-in duration-300"
                       >
-                        <div className="flex flex-col min-w-0">
-                          <h3 className="font-medium text-[#222] truncate">{job.title}</h3>
-                          <span className="text-sm text-[#666] truncate">{job.company}</span>
-                                </div>
-                        <div className="flex items-center ml-4">
-                          <span className="text-sm text-[#666]">{formatDate(job.created_at)}</span>
+                        <div className="relative aspect-[3/4] bg-[#222] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
+                          <div className="mb-6">
+                            <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                              </svg>
+                      </div>
+                    </div>
+                          <span className="text-lg font-medium">Create a new resume</span>
+                          <span className="text-sm text-white/70 mt-2">Start building from scratch</span>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => setImportDialogOpen(true)}
+                        className="block group [perspective:1000px] animate-in fade-in duration-300"
+                      >
+                        <div className="relative aspect-[3/4] bg-[#C4532D] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
+                          <div className="mb-6">
+                            <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                              </svg>
                             </div>
-                      </Link>
-                    ))}
+                          </div>
+                          <span className="text-lg font-medium">Import an existing...</span>
+                          <span className="text-sm text-white/70 mt-2">LinkedIn, JSON Resume, etc.</span>
+                        </div>
+                      </button>
+                      {jobs.map(job => (
+                        <Link key={job.id} href={`/preview?job_id=${job.id}`} className="block group [perspective:1000px] animate-in fade-in duration-300">
+                          <div className="relative aspect-[3/4] bg-white rounded-sm p-6 flex flex-col border border-[#ece7df] cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
+                            <div className="flex-1">
+                              <h3 className="text-lg font-medium text-[#222] line-clamp-2">{job.title}</h3>
+                              <p className="text-sm text-[#666] mt-1">{job.company}</p>
+                              <div className="mt-4 text-xs text-[#666]">
+                                Created {formatDate(job.created_at)}
+                                  </div>
+                                </div>
+                            <div className="mt-6 pt-6 border-t border-[#ece7df]">
+                              <div className="flex items-center justify-between">
+                                <div className="text-sm text-[#666]">View Resume</div>
+                                <ChevronRight className="w-4 h-4 text-[#666] group-hover:text-[#D96E36] transition-colors" />
+                                </div>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </>
+                  )}
+                  {viewMode === 'list' && (
+                    <div className="w-full bg-white/40 backdrop-blur-sm rounded-sm border border-[#ece7df] shadow-[0_1px_3px_0_rgb(0,0,0,0.05)] animate-in fade-in slide-in-from-top-4 duration-300">
+                      <button
+                        onClick={() => setCreateDialogOpen(true)}
+                        className="flex items-center gap-3 p-4 hover:bg-white/60 transition-colors duration-200 border-b border-[#ece7df] w-full text-left"
+                      >
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#222] text-white shadow-sm">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                          </svg>
+                </div>
+                <div>
+                          <h3 className="font-medium text-[#222]">Create a new resume</h3>
+                          <p className="text-sm text-[#666]">Start building from scratch</p>
                   </div>
+                      </button>
+                      <button
+                        onClick={() => setImportDialogOpen(true)}
+                        className="flex items-center gap-3 p-4 hover:bg-white/60 transition-colors duration-200 border-b border-[#ece7df] w-full text-left"
+                      >
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#D96E36] text-white shadow-sm">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-[#222]">Import an existing resume</h3>
+                          <p className="text-sm text-[#666]">LinkedIn, JSON Resume, etc.</p>
+                      </div>
+                      </button>
+                      {jobs.map((job, index) => (
+                        <Link 
+                          key={job.id} 
+                          href={`/preview?job_id=${job.id}`}
+                          className="flex items-center gap-3 p-4 hover:bg-white/80 group transition-colors duration-200 border-b border-[#ece7df] last:border-b-0"
+                        >
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FCF9F4] text-[#D96E36] border border-[#ece7df] group-hover:bg-[#D96E36] group-hover:text-white group-hover:border-[#D96E36] transition-colors">
+                            {job.title[0].toUpperCase()}
+                            </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-[#222] truncate group-hover:text-[#D96E36] transition-colors">{job.title}</h3>
+                            <p className="text-sm text-[#666] mt-0.5">{job.company}</p>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-xs text-[#666]">
+                              {formatDate(job.created_at)}
+                                  </div>
+                            <div className="flex items-center text-sm text-[#666] group-hover:text-[#D96E36] transition-colors">
+                              <span className="mr-2">Preview</span>
+                              <ChevronRight className="w-4 h-4" />
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
                   )}
                 </div>
+              )}
+
+              {activeSection === "Projects" && (
+                <div className="w-full bg-white/40 backdrop-blur-sm rounded-sm border border-[#ece7df] shadow-[0_1px_3px_0_rgb(0,0,0,0.05)] animate-in fade-in slide-in-from-top-4 duration-300">
+                  <div className="p-4 border-b border-[#ece7df] flex justify-between items-center">
+                    <h2 className="text-lg font-medium text-[#222]">Projects</h2>
+                    <Button 
+                      onClick={() => {
+                        setProjectEdits({});
+                        setEditingProject(null);
+                        setCreateDialogOpen(true);
+                      }} 
+                      className="bg-[#D96E36] text-white hover:bg-[#b85a28]"
+                    >
+                      Add Project
+                    </Button>
+                  </div>
+                  <div className="divide-y divide-[#ece7df]">
+                    {projects.map((project) => (
+                      <div key={project.id} className="p-6 hover:bg-white/60 transition-colors group">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-2 flex-1">
+                            <div className="flex items-start justify-between">
+                              <h3 className="text-lg font-medium text-[#222] group-hover:text-[#D96E36] transition-colors">
+                                {project.name}
+                              </h3>
+                              <Button variant="ghost" size="sm" onClick={() => startProjectEdit(project)} 
+                                className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                Edit
+                              </Button>
+                            </div>
+                            <p className="text-[#666] leading-relaxed">{project.description}</p>
+                            {project.link && (
+                              <a 
+                                href={project.link} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center text-sm text-[#D96E36] hover:text-[#b85a28] transition-colors"
+                              >
+                                View Project
+                                <ChevronRight className="w-4 h-4 ml-1" />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {projects.length === 0 && (
+                      <div className="p-6 text-center text-[#666]">
+                        No projects yet. Add your first project to get started.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeSection === "Experiences" && (
+                <div className="w-full bg-white/40 backdrop-blur-sm rounded-sm border border-[#ece7df] shadow-[0_1px_3px_0_rgb(0,0,0,0.05)] animate-in fade-in slide-in-from-top-4 duration-300">
+                  <div className="p-4 border-b border-[#ece7df] flex justify-between items-center">
+                    <h2 className="text-lg font-medium text-[#222]">Work Experience</h2>
+                    <Button 
+                      onClick={() => {
+                        setExperienceEdits({});
+                        setEditingExperience(null);
+                        setCreateDialogOpen(true);
+                      }}
+                      className="bg-[#D96E36] text-white hover:bg-[#b85a28]"
+                    >
+                      Add Experience
+                    </Button>
+                  </div>
+                  <div className="divide-y divide-[#ece7df]">
+                    {experiences.map((experience) => (
+                      <div key={experience.id} className="p-6 hover:bg-white/60 transition-colors group">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-2 flex-1">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h3 className="text-lg font-medium text-[#222] group-hover:text-[#D96E36] transition-colors">
+                                  {experience.position}
+                                </h3>
+                                <p className="text-[#666]">{experience.company}</p>
+                              </div>
+                              <Button variant="ghost" size="sm" onClick={() => startExperienceEdit(experience)}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                Edit
+                              </Button>
+                            </div>
+                            <p className="text-sm text-[#666]">{experience.duration}</p>
+                            <p className="text-[#666] leading-relaxed">{experience.description}</p>
+                          </div>
+                                  </div>
+                                </div>
+                    ))}
+                    {experiences.length === 0 && (
+                      <div className="p-6 text-center text-[#666]">
+                        No work experience yet. Add your first position to get started.
+                      </div>
+                    )}
+                                  </div>
+                                </div>
+                              )}
+
+              {activeSection === "Education" && (
+                <div className="w-full bg-white/40 backdrop-blur-sm rounded-sm border border-[#ece7df] shadow-[0_1px_3px_0_rgb(0,0,0,0.05)] animate-in fade-in slide-in-from-top-4 duration-300">
+                  <div className="p-4 border-b border-[#ece7df] flex justify-between items-center">
+                    <h2 className="text-lg font-medium text-[#222]">Education</h2>
+                    <Button 
+                      onClick={() => {
+                        setEducationEdits({});
+                        setEditingEducation(null);
+                        setCreateDialogOpen(true);
+                      }}
+                      className="bg-[#D96E36] text-white hover:bg-[#b85a28]"
+                    >
+                      Add Education
+                    </Button>
+                  </div>
+                  <div className="divide-y divide-[#ece7df]">
+                    {education.map((edu) => (
+                      <div key={edu.id} className="p-6 hover:bg-white/60 transition-colors group">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-2 flex-1">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h3 className="text-lg font-medium text-[#222] group-hover:text-[#D96E36] transition-colors">
+                                  {edu.degree}
+                                </h3>
+                                <p className="text-[#666]">{edu.institution}</p>
+                              </div>
+                              <Button variant="ghost" size="sm" onClick={() => startEducationEdit(edu)}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                Edit
+                              </Button>
+                            </div>
+                            <p className="text-sm text-[#666]">{edu.year}</p>
+                          </div>
+                        </div>
+                </div>
+                    ))}
+                    {education.length === 0 && (
+                      <div className="p-6 text-center text-[#666]">
+                        No education history yet. Add your first degree to get started.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeSection === "Skills" && (
+                <div className="w-full bg-white/40 backdrop-blur-sm rounded-sm border border-[#ece7df] shadow-[0_1px_3px_0_rgb(0,0,0,0.05)] animate-in fade-in slide-in-from-top-4 duration-300">
+                  <div className="p-4 border-b border-[#ece7df] flex justify-between items-center">
+                    <h2 className="text-lg font-medium text-[#222]">Skills</h2>
+                    <div className="flex gap-2">
+                      <Input
+                      value={newSkill}
+                        onChange={(e) => setNewSkill(e.target.value)}
+                        placeholder="Add a new skill..."
+                        className="w-64 border-[#ece7df] focus:ring-[#D96E36]"
+                        onKeyDown={(e) => e.key === 'Enter' && handleAddSkill()}
+                    />
+                    <Button
+                      onClick={handleAddSkill}
+                        className="bg-[#D96E36] text-white hover:bg-[#b85a28]"
+                    >
+                      Add
+                    </Button>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="flex flex-wrap gap-2">
+                      {skills.map((skill) => (
+                        <div
+                          key={skill.id}
+                          className="px-3 py-1.5 rounded-full bg-white border border-[#ece7df] text-sm text-[#666] flex items-center gap-2 group hover:border-[#D96E36] hover:text-[#D96E36] transition-colors"
+                        >
+                          {skill.name}
+                          <button
+                            onClick={() => handleRemoveSkill(skill.id)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity text-[#D96E36] hover:text-[#b85a28]"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    {skills.length === 0 && (
+                      <div className="text-center text-[#666]">
+                        No skills added yet. Add your first skill to get started.
+                      </div>
+                  )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        </main>
+          </main>
       </SidebarProvider>
-      
-      {/* Delete Modal */}
-            <Dialog open={!!deleteModal.type} onOpenChange={open => { if (!open) setDeleteModal({ type: '', id: null }); }}>
-              <DialogContent>
-                <DialogTitle>Delete {deleteModal.type.charAt(0).toUpperCase() + deleteModal.type.slice(1)}</DialogTitle>
-                <DialogDescription>Are you sure you want to delete this {deleteModal.type}? This action cannot be undone.</DialogDescription>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setDeleteModal({ type: '', id: null })}>Cancel</Button>
-                  <Button
-                    className="bg-[#D96E36] text-white"
-                    onClick={() => {
-                      if (deleteModal.id !== null) handleDelete(deleteModal.type, deleteModal.id);
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+
+      {/* Dialogs */}
+      <CreateResumeDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
+      <ImportResumeDialog open={importDialogOpen} onOpenChange={setImportDialogOpen} />
+
+      {/* Edit Dialogs */}
+      <EditDialog<Project>
+        open={!!editingProject}
+        onOpenChange={(open: boolean) => !open && setEditingProject(null)}
+        title={editingProject ? "Edit Project" : "Add Project"}
+        fields={[
+          { name: "name", label: "Project Name", type: "text", placeholder: "e.g. Personal Portfolio" },
+          { name: "description", label: "Description", type: "textarea", placeholder: "Describe your project..." },
+          { name: "link", label: "Project Link", type: "text", placeholder: "e.g. https://github.com/username/project" }
+        ]}
+        initialData={projectEdits}
+        onSave={async (data: Project) => {
+          if (editingProject) {
+            await saveProjectEdit(editingProject);
+          } else {
+            setNewProject({ name: data.name, description: data.description });
+            await handleAddProject();
+          }
+        }}
+      />
+
+      <EditDialog<Experience>
+        open={!!editingExperience}
+        onOpenChange={(open: boolean) => !open && setEditingExperience(null)}
+        title={editingExperience ? "Edit Experience" : "Add Experience"}
+        fields={[
+          { name: "position", label: "Position", type: "text", placeholder: "e.g. Software Engineer" },
+          { name: "company", label: "Company", type: "text", placeholder: "e.g. Google" },
+          { name: "duration", label: "Duration", type: "text", placeholder: "e.g. Jan 2020 - Present" },
+          { name: "description", label: "Description", type: "textarea", placeholder: "Describe your role and achievements..." }
+        ]}
+        initialData={experienceEdits}
+        onSave={async (data: Experience) => {
+          if (editingExperience) {
+            await saveExperienceEdit(editingExperience);
+          } else {
+            setNewExperience({ 
+              position: data.position, 
+              company: data.company, 
+              duration: data.duration, 
+              description: data.description 
+            });
+            await handleAddExperience();
+          }
+        }}
+      />
+
+      <EditDialog<Education>
+        open={!!editingEducation}
+        onOpenChange={(open: boolean) => !open && setEditingEducation(null)}
+        title={editingEducation ? "Edit Education" : "Add Education"}
+        fields={[
+          { name: "degree", label: "Degree", type: "text", placeholder: "e.g. Bachelor of Science in Computer Science" },
+          { name: "institution", label: "Institution", type: "text", placeholder: "e.g. Stanford University" },
+          { name: "year", label: "Year", type: "text", placeholder: "e.g. 2020" }
+        ]}
+        initialData={educationEdits}
+        onSave={async (data: Education) => {
+          if (editingEducation) {
+            await saveEducationEdit(editingEducation);
+          } else {
+            setNewEducation({ 
+              degree: data.degree, 
+              institution: data.institution, 
+              year: data.year,
+              description: '' 
+            });
+            await handleAddEducation();
+          }
+        }}
+      />
+
+      {/* Toast Container */}
+      <Toaster />
     </div>
   );
 } 

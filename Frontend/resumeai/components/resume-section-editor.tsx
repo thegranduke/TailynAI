@@ -38,7 +38,7 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
   const setProjects = useResumeStore(s => s.setProjects);
 
   const renderBasicsSection = () => (
-    <div className="space-y-6 bg-white border border-[#ece7df] p-6">
+    <div className="space-y-6 bg-white  p-6">
       <div className="space-y-2">
         <Label htmlFor="name" className="text-sm font-medium text-[#666]">Full Name</Label>
         <Input
@@ -95,7 +95,7 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
             "group border-b border-[#ece7df] bg-white",
             isDragging && "relative z-50"
           )}>
-            <CollapsibleTrigger className="flex items-center justify-between w-full px-6 py-4 hover:bg-[#FCF9F4] transition-colors gap-2">
+            <CollapsibleTrigger className="group/item flex items-center justify-between w-full px-6 py-4 transition-colors gap-2">
               <div className="flex items-center gap-3 flex-1">
                 <div {...dragHandleProps}>
                   <GripVertical className="w-4 h-4" />
@@ -125,7 +125,7 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
-                <ChevronDown className="w-4 h-4 text-[#666] transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                <ChevronDown className="w-4 h-4 text-[#666] transition-all duration-200 group-data-[state=open]/item:rotate-180 group-hover/item:text-[#D96E36]" />
               </div>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -188,7 +188,7 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
         }}
       >
         <Plus className="w-4 h-4 mr-2" />
-        Add Experience
+        Add New Experience
       </Button>
     </div>
   );
@@ -203,7 +203,7 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
             "group border-b border-[#ece7df] bg-white",
             isDragging && "relative z-50"
           )}>
-            <CollapsibleTrigger className="flex items-center justify-between w-full px-6 py-4 hover:bg-[#FCF9F4] transition-colors gap-2">
+            <CollapsibleTrigger className="group/item flex items-center justify-between w-full px-6 py-4 transition-colors gap-2">
               <div className="flex items-center gap-3 flex-1">
                 <div {...dragHandleProps}>
                   <GripVertical className="w-4 h-4" />
@@ -233,7 +233,7 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
-                <ChevronDown className="w-4 h-4 text-[#666] transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                <ChevronDown className="w-4 h-4 text-[#666] transition-all duration-200 group-data-[state=open]/item:rotate-180 group-hover/item:text-[#D96E36]" />
               </div>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -282,14 +282,14 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
         }}
       >
         <Plus className="w-4 h-4 mr-2" />
-        Add Education
+        Add New Education
       </Button>
     </div>
   );
 
   const renderSkillsSection = () => (
     <div className="space-y-6">
-      <div className="bg-white border border-[#ece7df] rounded-lg p-6">
+      <div className="bg-white p-6">
         <div className="space-y-4">
           <Label className="text-sm font-medium text-[#666]">Skills</Label>
           <div className="flex flex-wrap gap-2">
@@ -354,7 +354,7 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
             "group border-b border-[#ece7df] bg-white",
             isDragging && "relative z-50"
           )}>
-            <CollapsibleTrigger className="flex items-center justify-between w-full px-6 py-4 hover:bg-[#FCF9F4] transition-colors gap-2">
+            <CollapsibleTrigger className="group/item flex items-center justify-between w-full px-6 py-4 transition-colors gap-2">
               <div className="flex items-center gap-3 flex-1">
                 <div {...dragHandleProps}>
                   <GripVertical className="w-4 h-4" />
@@ -384,7 +384,7 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
-                <ChevronDown className="w-4 h-4 text-[#666] transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                <ChevronDown className="w-4 h-4 text-[#666] transition-all duration-200 group-data-[state=open]/item:rotate-180 group-hover/item:text-[#D96E36]" />
               </div>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -419,7 +419,7 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
         }}
       >
         <Plus className="w-4 h-4 mr-2" />
-        Add Project
+        Add New Project
       </Button>
     </div>
   );
