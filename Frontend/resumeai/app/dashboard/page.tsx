@@ -110,28 +110,33 @@ function SidebarAccountFooter() {
 
 function DashboardSidebar({ setActiveSection, activeSection }: { setActiveSection: (section: string) => void, activeSection: string }) {
   return (
-    <Sidebar className="border-r border-[#ece7df] bg-[#FFFEFB] w-64 h-full">
-      <div className="p-6">
-        <Link href="/dashboard" className="flex items-center gap-2 mb-8">
-          <span className="text-2xl font-bold text-[#D96E36]">Taylin</span>
-        </Link>
-        <nav>
-              {sidebarLinks.map(link => (
-                    <button
-              key={link.label}
-                      onClick={() => setActiveSection(link.section)}
-              className={`w-full text-left px-3 py-2 rounded-md mb-1 ${
-                activeSection === link.section 
-                ? 'text-[#D96E36] bg-[#D96E36]/5 font-medium' 
-                : 'text-[#666] hover:text-[#222] hover:bg-[#FFFEFB]'
-              }`}
-                    >
-                      {link.label}
-                    </button>
-              ))}
-        </nav>
-      </div>
-      <SidebarAccountFooter />
+    <Sidebar 
+      className="border-r border-[#ece7df] bg-[#FFFEFB] w-64 h-full" 
+      collapsible="offcanvas"
+    >
+      <SidebarContent className="flex flex-col h-full gap-0">
+        <div className="p-6">
+          <Link href="/dashboard" className="flex items-center gap-2 mb-8">
+            <span className="text-2xl font-bold text-[#D96E36]">Taylin</span>
+          </Link>
+          <nav>
+            {sidebarLinks.map(link => (
+              <button
+                key={link.label}
+                onClick={() => setActiveSection(link.section)}
+                className={`w-full text-left px-3 py-2 rounded-md mb-1 ${
+                  activeSection === link.section 
+                  ? 'text-[#D96E36] bg-[#D96E36]/5 font-medium' 
+                  : 'text-[#666] hover:text-[#222] hover:bg-[#FFFEFB]'
+                }`}
+              >
+                {link.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+        <SidebarAccountFooter />
+      </SidebarContent>
     </Sidebar>
   );
 }
@@ -427,7 +432,10 @@ export default function DashboardPage() {
             <div className="flex-1 flex flex-col">
               {/* Header */}
               <div className="flex items-center justify-between mb-8">
-                <h1 className="text-[2rem] font-medium text-[#222]">Resumes</h1>
+                <div className="flex items-center gap-4">
+                  <SidebarTrigger className="md:hidden" />
+                  <h1 className="text-[2rem] font-medium text-[#222]">Resumes</h1>
+                </div>
                 
                 <div className="flex items-center gap-6">
                   <div className="flex items-center rounded-md overflow-hidden border border-[#ece7df] bg-white">

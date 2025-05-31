@@ -9,6 +9,7 @@ import {
   SidebarProvider,
   Sidebar,
   SidebarContent,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ResumeSectionEditor } from "@/components/resume-section-editor";
 import Link from "next/link";
@@ -234,18 +235,21 @@ export default function PreviewPage() {
   return (
     <div className="flex min-h-screen bg-[#FCF9F4]">
       <SidebarProvider style={{ "--sidebar-width": "450px" } as React.CSSProperties}>
-        <Sidebar className="border-r border-[#ece7df] bg-[#FFFEFB]">
+        <Sidebar className="border-r border-[#ece7df] bg-[#FFFEFB]" collapsible="offcanvas">
           <SidebarContent className="flex flex-col h-full gap-0">
             {/* Header */}
             <div className="shrink-0 border-b border-[#ece7df]">
               <div className="px-4 h-14 flex items-center justify-between">
-                <Link 
-                  href="/dashboard" 
-                  className="inline-flex items-center text-[#666] hover:text-[#222] transition-colors text-sm"
-                >
-                  <ChevronLeft className="w-4 h-4 mr-1.5" />
-                  Back to Dashboard
-                </Link>
+                <div className="flex items-center gap-2">
+                  <SidebarTrigger className="md:hidden" />
+                  <Link 
+                    href="/dashboard" 
+                    className="inline-flex items-center text-[#666] hover:text-[#222] transition-colors text-sm"
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-1.5" />
+                    Back to Dashboard
+                  </Link>
+                </div>
                 <div className="flex items-center gap-2">
                   <Button 
                     variant="ghost"
@@ -344,6 +348,10 @@ export default function PreviewPage() {
 
         {/* Main Preview Area */}
         <main className="flex-1 min-h-screen flex flex-col">
+          <div className="flex items-center gap-2 p-4 border-b border-[#ece7df] md:hidden">
+            <SidebarTrigger />
+            <span className="text-sm text-[#666]">Toggle Editor</span>
+          </div>
           <div className="flex-1 p-6">
             <div className="h-full flex items-center">
               {error ? (
@@ -352,8 +360,8 @@ export default function PreviewPage() {
                 <ResumePreview />
               )}
             </div>
-            </div>
-          </main>
+          </div>
+        </main>
       </SidebarProvider>
     </div>
   );
