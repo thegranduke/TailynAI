@@ -1,49 +1,78 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from './supabase';
 
 export async function fetchResumeData(user_id: string, job_id: string) {
-  // Fetch all data in parallel using correct linkage columns
-  const [profileRes, skillsRes, projectsRes, expRes, projMatchRes, expMatchRes, educationRes, jobMatchRes] = await Promise.all([
-    supabase.from('user_profiles').select('*').eq('clerk_user_id', user_id).single(),
-    supabase.from('skills').select('*').eq('profile_id', user_id),
-    supabase.from('projects').select('*').eq('profile_id', user_id),
-    supabase.from('work_experiences').select('*').eq('profile_id', user_id),
-    supabase.from('project_matches').select('*').eq('job_id', job_id),
-    supabase.from('experience_matches').select('*').eq('job_id', job_id),
-    supabase.from('education').select('*').eq('profile_id', user_id).order('year', { ascending: false }),
-    supabase.from('job_matches').select('*').eq('job_id', job_id),
-  ]);
+  try {
+    console.log('Fetching resume data for user:', user_id, 'job:', job_id);
+    
+    if (!user_id || !job_id) {
+      throw new Error('Missing required parameters: user_id or job_id');
+    }
 
-  // Map matches to full objects (if needed)
-  const matchedProjectIds = projMatchRes.data?.map((m: any) => m.project_id) || [];
-  const matchedExperienceIds = expMatchRes.data?.map((m: any) => m.experience_id) || [];
-  const matchedSkillIds = jobMatchRes.data?.map((m: any) => m.skill_id) || [];
+    // Fetch all data in parallel using correct linkage columns
+    const [profileRes, resumeStateRes, jobRes] = await Promise.all([
+      supabase.from('user_profiles').select('*').eq('clerk_user_id', user_id).single(),
+      supabase.from('resume_states').select('*').eq('job_id', job_id).eq('profile_id', user_id).single(),
+      supabase.from('job_descriptions').select('*').eq('id', job_id).single()
+    ]);
 
-  return {
-    personal: profileRes.data || {},
-    skills: (skillsRes.data?.filter((s: any) => matchedSkillIds.length === 0 || matchedSkillIds.includes(s.id)) || []),
-    projects: (projectsRes.data?.filter((p: any) => matchedProjectIds.length === 0 || matchedProjectIds.includes(p.id)) || []).map((project: any) => {
-      // Find improved description for this project
-      const match = projMatchRes.data?.find((m: any) => m.project_id === project.id);
-      return {
-        ...project,
-        description: match?.improved_description || project.description,
+    // Check for errors in each response
+    if (profileRes.error && profileRes.error.code !== 'PGRST116') {
+      console.error('Error fetching profile:', profileRes.error);
+      throw profileRes.error;
+    }
+
+    if (resumeStateRes.error && resumeStateRes.error.code !== 'PGRST116') {
+      console.error('Error fetching resume state:', resumeStateRes.error);
+      throw resumeStateRes.error;
+    }
+
+    if (jobRes.error && jobRes.error.code !== 'PGRST116') {
+      console.error('Error fetching job:', jobRes.error);
+      throw jobRes.error;
+    }
+
+    // If we have a saved state, use it directly
+    if (resumeStateRes.data) {
+      console.log('Found saved resume state:', resumeStateRes.data);
+      const savedState = resumeStateRes.data;
+
+      // Use saved personal info, falling back to profile data and job data
+      const personal = {
+        ...(profileRes.data || {}),
+        ...savedState.personal,
+        title: jobRes.data?.title,
+        company: jobRes.data?.company
       };
-    }),
-    experiences: (expRes.data?.filter((e: any) => matchedExperienceIds.length === 0 || matchedExperienceIds.includes(e.id)) || []).map((exp: any) => {
-      // Find improved description for this experience
-      const match = expMatchRes.data?.find((m: any) => m.experience_id === exp.id);
-      return {
-        ...exp,
-        description: match?.improved_description || exp.description,
+
+      const result = {
+        personal,
+        skills: savedState.skills || [],
+        experiences: savedState.experiences || [],
+        projects: savedState.projects || [],
+        education: savedState.education || []
       };
-    }),
-    education: educationRes.data || []
-  };
+
+      console.log('Returning resume data:', result);
+      return result;
+    }
+
+    console.log('No saved state found, returning empty sections');
+    // If no saved state exists, return empty sections with basic info
+    return {
+      personal: {
+        ...(profileRes.data || {}),
+        title: jobRes.data?.title,
+        company: jobRes.data?.company
+      },
+      skills: [],
+      experiences: [],
+      projects: [],
+      education: []
+    };
+  } catch (error) {
+    console.error('Error fetching resume data:', error);
+    throw error;
+  }
 }
 
 export async function fetchEducation(user_id: string) {

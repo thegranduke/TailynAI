@@ -75,6 +75,15 @@ def upload():
 
 @app.route('/match-job', methods=['POST'])
 def match_job_to_profile():
+    data = request.get_json()
+    job_description = data.get('job_description')
+    job_id = data.get('job_id')
+    print("Job description:", job_description)
+    print("Job id:", job_id)
+    token = request.headers.get("Authorization")
+    print("Here is the fokin token", token)
+    
+
     # Get and verify Clerk token
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
@@ -91,16 +100,19 @@ def match_job_to_profile():
     if request.is_json:
         data = request.get_json()
         job_description = data.get('job_description')
+        job_id = data.get('job_id')  # Get job_id from request
         user_id = data.get('clerk_user_id', clerk_user_id)
     else:
         job_description = request.form.get('job_text')
+        job_id = request.form.get('job_id')  # Get job_id from form
         user_id = request.form.get('clerk_user_id', clerk_user_id)
-        # If job_pdf is present, you could extract text from it here if needed
 
     if not job_description:
         return {"error": "Missing job description"}, 400
     if not user_id:
         return {"error": "Missing user id"}, 400
+    if not job_id:
+        return {"error": "Missing job id"}, 400
 
     profile = fetch_profile_from_supabase(user_id)
     if not profile:
@@ -118,18 +130,15 @@ def match_job_to_profile():
     matched_experience_ids = gemini_response.get("matched_experience_ids", [])
     improved_descriptions = gemini_response.get("improved_descriptions", {})
 
-    # 1. Create job in job_descriptions
-    job_insert = supabase.table("job_descriptions").insert({
-        "profile_id": user_id,
+    # Update existing job in job_descriptions
+    job_update = supabase.table("job_descriptions").update({
         "title": job_title,
         "company": job_company,
         "raw_description": job_raw_description
-    }).execute()
-    job_id = None
-    if job_insert.data and len(job_insert.data) > 0:
-        job_id = job_insert.data[0]["id"]
-    else:
-        return {"error": "Failed to create job description"}, 500
+    }).eq("id", job_id).eq("profile_id", user_id).execute()
+
+    if not job_update.data:
+        return {"error": "Failed to update job description"}, 500
 
     # 2. Create job_matches (skills)
     for skill_id in matched_skill_ids:

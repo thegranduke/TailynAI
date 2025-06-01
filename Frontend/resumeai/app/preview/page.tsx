@@ -5,6 +5,7 @@ import { useResumeStore } from "@/store/useResumeStore";
 import { fetchResumeData } from "@/lib/fetchResumeData";
 import { useUser } from "@clerk/nextjs";
 import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import {
   SidebarProvider,
   Sidebar,
@@ -26,7 +27,8 @@ import {
   Plus,
   Trash2,
   GripVertical,
-  ChevronDown
+  ChevronDown,
+  Loader2
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -44,6 +46,7 @@ import { pdf } from "@react-pdf/renderer";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { supabase } from "@/lib/supabase";
 
 interface Experience {
   id: number;
@@ -106,6 +109,8 @@ export default function PreviewPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   // Fetch database items
   useEffect(() => {
@@ -207,9 +212,109 @@ export default function PreviewPage() {
     }
   };
 
-  const handleDownloadPDF = async () => {
+  // Function to save current state
+  const handleSave = async () => {
+    const job_id = searchParams.get("job_id");
+    if (!job_id || !user?.id) {
+      toast.error("Unable to save resume - missing job_id or user_id");
+      return false;
+    }
+
+    setSaving(true);
     try {
-      const blob = await pdf(
+      // Validate required data
+      if (!personal) {
+        throw new Error("Personal information is required");
+      }
+
+      // Prepare the data to save
+      const resumeState = {
+        job_id: parseInt(job_id),
+        profile_id: user.id,
+        personal: personal || {},
+        skills: (skills || []).map(s => ({
+          id: s.id,
+          name: s.name
+        })),
+        experiences: (experiences || []).map(e => ({
+          id: e.id,
+          position: e.position || '',
+          company: e.company || '',
+          duration: e.duration || '',
+          description: e.description || ''
+        })),
+        projects: (projects || []).map(p => ({
+          id: p.id,
+          name: p.name || '',
+          description: p.description || '',
+          link: p.link || ''
+        })),
+        education: (education || []).map(e => ({
+          id: e.id,
+          degree: e.degree || '',
+          institution: e.institution || '',
+          year: e.year || ''
+        })),
+        updated_at: new Date().toISOString()
+      };
+
+      console.log('Attempting to save resume state:', resumeState);
+
+      // First, check if a record exists
+      const { data: existingState, error: fetchError } = await supabase
+        .from('resume_states')
+        .select('id')
+        .eq('job_id', parseInt(job_id))
+        .eq('profile_id', user.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error('Error checking existing state:', fetchError);
+        throw fetchError;
+      }
+
+      let result;
+      if (existingState?.id) {
+        // Update existing record
+        result = await supabase
+          .from('resume_states')
+          .update(resumeState)
+          .eq('id', existingState.id)
+          .select()
+          .single();
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('resume_states')
+          .insert(resumeState)
+          .select()
+          .single();
+      }
+
+      if (result.error) {
+        console.error('Error saving state:', result.error);
+        throw new Error(result.error.message);
+      }
+
+      console.log('Successfully saved resume state:', result.data);
+      toast.success("Resume saved successfully");
+      return true;
+    } catch (error) {
+      console.error('Error saving resume:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to save resume";
+      console.error('Error details:', errorMessage);
+      toast.error(errorMessage);
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    setDownloading(true);
+    try {
+      // Generate PDF first to avoid delay after saving
+      const pdfBlob = await pdf(
         <ResumePDF
           personal={personal}
           skills={skills}
@@ -218,8 +323,9 @@ export default function PreviewPage() {
           education={education}
         />
       ).toBlob();
-      
-      const url = URL.createObjectURL(blob);
+
+      // Download the PDF
+      const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
       link.download = `${personal.name ? personal.name.replace(/\s+/g, '_') : 'resume'}.pdf`;
@@ -227,8 +333,21 @@ export default function PreviewPage() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+
+      // Save in the background without blocking the download
+      const job_id = searchParams.get("job_id");
+      if (job_id && user?.id) {
+        toast.promise(handleSave(), {
+          loading: 'Saving your progress...',
+          success: 'Progress saved successfully',
+          error: 'Failed to save progress'
+        });
+      }
     } catch (error) {
       console.error('Failed to generate PDF:', error);
+      toast.error("Failed to download resume");
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -256,14 +375,25 @@ export default function PreviewPage() {
                     size="sm"
                     className="text-[#666] hover:text-[#222]"
                     onClick={handleDownloadPDF}
+                    disabled={downloading}
                   >
-                    <Download className="w-4 h-4" />
+                    {downloading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Download className="w-4 h-4" />
+                    )}
                   </Button>
                   <Button 
                     size="sm"
                     className="bg-[#D96E36] hover:bg-[#D96E36]/90 text-white"
+                    onClick={handleSave}
+                    disabled={saving}
                   >
-                    <Save className="w-4 h-4" />
+                    {saving ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Save className="w-4 h-4" />
+                    )}
                   </Button>
                 </div>
               </div>

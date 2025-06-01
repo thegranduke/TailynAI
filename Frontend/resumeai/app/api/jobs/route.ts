@@ -10,10 +10,10 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, company } = body;
+    const { title, company, jobDescription } = body;
 
-    if (!title || !company) {
-      return new NextResponse('Missing required fields', { status: 400 });
+    if (!title?.trim() || !company?.trim()) {
+      return new NextResponse('Title and company are required', { status: 400 });
     }
 
     const supabase = createClient(
@@ -21,16 +21,16 @@ export async function POST(request: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
+    // Create a new job with all fields
     const { data, error } = await supabase
       .from('job_descriptions')
-      .insert([
-        {
-          profile_id: userId,
-          title,
-          company,
-          raw_description: ''
-        }
-      ])
+      .insert({
+        profile_id: userId,
+        title: title.trim(),
+        company: company.trim(),
+        raw_description: jobDescription?.trim() || null,
+        created_at: new Date().toISOString()
+      })
       .select()
       .single();
 
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       return new NextResponse('Failed to create job', { status: 500 });
     }
 
-    return NextResponse.json({ job_id: data.id });
+    return NextResponse.json(data);
   } catch (error) {
     console.error('Error in POST /api/jobs:', error);
     return new NextResponse('Internal Error', { status: 500 });

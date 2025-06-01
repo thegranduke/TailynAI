@@ -58,7 +58,7 @@ export function EditDialog<T>({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="overflow-y-auto">
           <div className="grid gap-4 py-4">
             {fields.map((field) => (
               <div key={field.name} className="grid gap-2">
@@ -69,6 +69,7 @@ export function EditDialog<T>({
                     value={(formData as any)[field.name] || ''}
                     onChange={(e) => setFormData({ ...formData, [field.name]: e.target.value })}
                     placeholder={field.placeholder}
+                    className="min-h-[150px] resize-y"
                   />
                 ) : (
                   <Input
@@ -81,7 +82,7 @@ export function EditDialog<T>({
               </div>
             ))}
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-6">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>

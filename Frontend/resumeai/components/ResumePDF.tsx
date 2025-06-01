@@ -11,136 +11,223 @@ interface ResumePDFProps {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 32,
-    fontSize: 12,
-    fontFamily: 'Helvetica',
-    backgroundColor: '#fff',
-  },
-  section: {
-    marginBottom: 16,
+    padding: 30,
+    fontSize: 10,
   },
   header: {
-    fontSize: 24,
-    marginBottom: 8,
-    fontWeight: 'bold',
+    marginBottom: 10,
     textAlign: 'center',
   },
-  subHeader: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 4,
-    textTransform: 'uppercase',
-    borderBottom: '1px solid #eee',
-    paddingBottom: 2,
+  name: {
+    fontSize: 20,
+    marginBottom: 5,
+    fontWeight: 'light',
   },
-  text: {
-    marginBottom: 2,
+  contact: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+    marginBottom: 5,
+    color: '#444',
   },
-  list: {
-    marginLeft: 12,
-    marginBottom: 4,
-  },
-  listItem: {
-    marginBottom: 2,
-  },
-  techStack: {
-    fontSize: 10,
+  summary: {
+    marginTop: 5,
+    marginBottom: 10,
+    fontSize: 8,
     color: '#666',
-    marginTop: 2,
+    fontStyle: 'italic',
+    textAlign: 'center',
+  },
+  sectionHeader: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginTop: 15,
+    marginBottom: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingBottom: 2,
+    textTransform: 'uppercase',
+  },
+  itemHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    marginBottom: 3,
+  },
+  itemTitle: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
+  itemSubtitle: {
+    fontSize: 10,
+    color: '#444',
+  },
+  itemDate: {
+    fontSize: 8,
+    color: '#666',
+  },
+  bulletList: {
+    paddingLeft: 15,
+  },
+  bullet: {
+    fontSize: 9,
+    color: '#444',
+    marginBottom: 2,
+  },
+  skillsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  skill: {
+    fontSize: 9,
+    color: '#444',
   },
 });
 
-const ResumePDF: React.FC<ResumePDFProps> = ({ personal, skills, experiences, projects, education }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      {/* Header */}
-      <View style={styles.section}>
-        <Text style={styles.header}>{personal.name || ''}</Text>
-        <View style={{ alignItems: 'center', marginBottom: 2 }}>
-          <Text style={styles.text}>{personal.email || ''}{personal.phone ? ` | ${personal.phone}` : ''}</Text>
+export default function ResumePDF({ personal, skills, experiences, projects, education }: ResumePDFProps) {
+  const website = personal.website;
+  const github = personal.github;
+  const summary = personal.summary;
+
+  // Helper function to check if a section has valid content
+  const hasValidContent = (section: any[]): boolean => {
+    return section.length > 0 && section.some(item => {
+      if ('description' in item) {
+        return item.description?.trim().length > 0;
+      }
+      if ('name' in item) {
+        return item.name?.trim().length > 0;
+      }
+      return true;
+    });
+  };
+
+  // Check which sections have content
+  const hasEducation = hasValidContent(education);
+  const hasExperiences = hasValidContent(experiences);
+  const hasProjects = hasValidContent(projects);
+  const hasSkills = skills.length > 0;
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.name}>{personal.name || ""}</Text>
+          <View style={styles.contact}>
+            {personal.email && <Text>{personal.email}</Text>}
+            {website && <Text>🌐 {website}</Text>}
+            {github && <Text>github.com {github}</Text>}
+          </View>
+          {personal.phone && <Text style={{ textAlign: 'center', color: '#444' }}>{personal.phone}</Text>}
+          {summary && <Text style={styles.summary}>{summary}</Text>}
         </View>
-        {personal.website && <Text style={{ ...styles.text, textAlign: 'center' }}>{personal.website}</Text>}
-        {personal.github && <Text style={{ ...styles.text, textAlign: 'center' }}>github.com/{personal.github}</Text>}
-        {personal.summary && <Text style={[styles.text, { fontStyle: 'italic', color: '#888', textAlign: 'center' }]}>{personal.summary}</Text>}
-      </View>
 
-      {/* Education */}
-      <Text style={styles.subHeader}>Education</Text>
-      <View style={styles.section}>
-        {education.map((edu: any) => (
-          <View key={edu.id} style={{ marginBottom: 6 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', width: '100%' }}>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                {edu.degree && <Text style={{ fontWeight: 'bold', fontSize: 12, textTransform: 'uppercase', marginRight: 4 }}>{edu.degree}</Text>}
-                {edu.institution && <Text style={{ fontSize: 12 }}>{edu.institution}</Text>}
-              </View>
-              <Text style={{ color: '#888', fontSize: 10, textAlign: 'right' }}>{edu.year}</Text>
+        {/* Education */}
+        {hasEducation && (
+          <>
+            <Text style={styles.sectionHeader}>Education</Text>
+            {education.map((edu: any, index: number) => (
+              edu.degree && edu.institution && (
+                <View key={index} style={{ marginBottom: 5 }}>
+                  <View style={styles.itemHeader}>
+                    <View>
+                      <Text style={styles.itemTitle}>{edu.degree}</Text>
+                      <Text style={styles.itemSubtitle}>{edu.institution}</Text>
+                    </View>
+                    {edu.year && <Text style={styles.itemDate}>{edu.year}</Text>}
+                  </View>
+                </View>
+              )
+            ))}
+          </>
+        )}
+
+        {/* Professional Experience */}
+        {hasExperiences && (
+          <>
+            <Text style={styles.sectionHeader}>Professional Experience</Text>
+            {experiences.map((exp: any, index: number) => (
+              exp.position && exp.company && (
+                <View key={index} style={{ marginBottom: 10 }}>
+                  <View style={styles.itemHeader}>
+                    <View>
+                      <Text style={styles.itemTitle}>{exp.position}</Text>
+                      <Text style={styles.itemSubtitle}>{exp.company}</Text>
+                    </View>
+                    <Text style={styles.itemDate}>
+                      {exp.location && `${exp.location}, `}
+                      {exp.dates || exp.duration}
+                    </Text>
+                  </View>
+                  {exp.bullets ? (
+                    <View style={styles.bulletList}>
+                      {exp.bullets.map((bullet: string, i: number) => (
+                        bullet.trim() && <Text key={i} style={styles.bullet}>• {bullet}</Text>
+                      ))}
+                    </View>
+                  ) : exp.description && (
+                    <View style={styles.bulletList}>
+                      {exp.description.split('\n').map((line: string, i: number) => (
+                        line.trim() && <Text key={i} style={styles.bullet}>• {line}</Text>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              )
+            ))}
+          </>
+        )}
+
+        {/* Projects */}
+        {hasProjects && (
+          <>
+            <Text style={styles.sectionHeader}>Projects</Text>
+            {projects.map((project: any, index: number) => (
+              project.name && (
+                <View key={index} style={{ marginBottom: 10 }}>
+                  <View style={styles.itemHeader}>
+                    <Text style={styles.itemTitle}>{project.name}</Text>
+                    {project.dates && <Text style={styles.itemDate}>{project.dates}</Text>}
+                  </View>
+                  {project.bullets ? (
+                    <View style={styles.bulletList}>
+                      {project.bullets.map((bullet: string, i: number) => (
+                        bullet.trim() && <Text key={i} style={styles.bullet}>• {bullet}</Text>
+                      ))}
+                    </View>
+                  ) : project.description && (
+                    <View style={styles.bulletList}>
+                      {project.description.split('\n').map((line: string, i: number) => (
+                        line.trim() && <Text key={i} style={styles.bullet}>• {line}</Text>
+                      ))}
+                    </View>
+                  )}
+                  {project.tech_stack && (
+                    <Text style={{ fontSize: 8, color: '#666', marginTop: 3 }}>
+                      Tech Stack: {project.tech_stack}
+                    </Text>
+                  )}
+                </View>
+              )
+            ))}
+          </>
+        )}
+
+        {/* Skills */}
+        {hasSkills && (
+          <>
+            <Text style={styles.sectionHeader}>Skills</Text>
+            <View style={styles.skillsContainer}>
+              {skills.map((skill: any, index: number) => (
+                skill.name && <Text key={index} style={styles.skill}>{skill.name}</Text>
+              ))}
             </View>
-          </View>
-        ))}
-      </View>
-
-      {/* Professional Experience */}
-      <Text style={styles.subHeader}>Professional Experience</Text>
-      <View style={styles.section}>
-        {experiences.map((exp: any) => (
-          <View key={exp.id} style={{ marginBottom: 6 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', width: '100%' }}>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                {exp.position && <Text style={{ fontWeight: 'bold', fontSize: 12, textTransform: 'uppercase', marginRight: 4 }}>{exp.position}</Text>}
-                {exp.company && <Text style={{ fontSize: 12 }}>{exp.company}</Text>}
-              </View>
-              <Text style={{ color: '#888', fontSize: 10, textAlign: 'right' }}>
-                {exp.location ? `${exp.location}, ` : ''}{exp.dates || exp.duration}
-              </Text>
-            </View>
-            {exp.bullets ? (
-              <View style={styles.list}>
-                {exp.bullets.map((b: string, i: number) => <Text key={i} style={styles.listItem}>• {b}</Text>)}
-              </View>
-            ) : exp.description && (
-              <View style={styles.list}>
-                {exp.description.split('\n').map((line: string, i: number) =>
-                  line.trim() && <Text key={i} style={styles.listItem}>• {line}</Text>
-                )}
-              </View>
-            )}
-          </View>
-        ))}
-      </View>
-
-      {/* Projects */}
-      <Text style={styles.subHeader}>Projects</Text>
-      <View style={styles.section}>
-        {projects.map((project: any) => (
-          <View key={project.id} style={{ marginBottom: 6 }}>
-            <Text style={{ fontWeight: 'bold' }}>{project.name}</Text>
-            {project.bullets ? (
-              <View style={styles.list}>
-                {project.bullets.map((b: string, i: number) => <Text key={i} style={styles.listItem}>• {b}</Text>)}
-              </View>
-            ) : project.description && (
-              <View style={styles.list}>
-                {project.description.split('\n').map((line: string, i: number) =>
-                  line.trim() && <Text key={i} style={styles.listItem}>• {line}</Text>
-                )}
-              </View>
-            )}
-            {project.tech_stack && (
-              <Text style={styles.techStack}>Tech Stack: {project.tech_stack}</Text>
-            )}
-          </View>
-        ))}
-      </View>
-
-      {/* Skills */}
-      <Text style={styles.subHeader}>Skills</Text>
-      <View style={styles.section}>
-        <Text>{skills.map((skill: any) => skill.name).join(', ')}</Text>
-      </View>
-    </Page>
-  </Document>
-);
-
-export default ResumePDF; 
+          </>
+        )}
+      </Page>
+    </Document>
+  );
+} 

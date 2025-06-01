@@ -35,6 +35,7 @@ import { Toaster } from "sonner";
 import { CreateResumeDialog, ImportResumeDialog } from "@/components/resume-dialogs";
 import { EditDialog } from "@/components/edit-dialog";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 const sidebarLinks = [
   { label: "Resumes", section: "Resumes" },
@@ -120,19 +121,19 @@ function DashboardSidebar({ setActiveSection, activeSection }: { setActiveSectio
             <span className="text-2xl font-bold text-[#D96E36]">Taylin</span>
           </Link>
           <nav>
-            {sidebarLinks.map(link => (
-              <button
+              {sidebarLinks.map(link => (
+                    <button
                 key={link.label}
-                onClick={() => setActiveSection(link.section)}
+                      onClick={() => setActiveSection(link.section)}
                 className={`w-full text-left px-3 py-2 rounded-md mb-1 ${
                   activeSection === link.section 
                   ? 'text-[#D96E36] bg-[#D96E36]/5 font-medium' 
                   : 'text-[#666] hover:text-[#222] hover:bg-[#FFFEFB]'
                 }`}
-              >
-                {link.label}
-              </button>
-            ))}
+                    >
+                      {link.label}
+                    </button>
+              ))}
           </nav>
         </div>
         <SidebarAccountFooter />
@@ -200,27 +201,39 @@ export default function DashboardPage() {
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteItem, setDeleteItem] = useState<{ type: string; id: number } | null>(null);
+  const router = useRouter();
 
+  // Refresh data when returning to dashboard
   useEffect(() => {
-    if (!user?.id) return;
-    setLoading(true);
-    setError(null);
-    Promise.all([
-      fetchDashboardJobs(user.id),
-      fetchProjects(user.id),
-      fetchExperiences(user.id),
-      fetchEducation(user.id),
-      fetchSkills(user.id)
-    ])
-      .then(([jobsData, projectsData, experiencesData, educationData, skillsData]) => {
+    const refreshData = async () => {
+      if (!user?.id) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const [jobsData, projectsData, experiencesData, educationData, skillsData] = await Promise.all([
+          fetchDashboardJobs(user.id),
+          fetchProjects(user.id),
+          fetchExperiences(user.id),
+          fetchEducation(user.id),
+          fetchSkills(user.id)
+        ]);
         setJobs(jobsData);
         setProjects(projectsData);
         setExperiences(experiencesData);
         setEducation(educationData);
         setSkills(skillsData);
-      })
-      .catch(e => setError("Failed to load dashboard data."))
-      .finally(() => setLoading(false));
+      } catch (e) {
+        setError("Failed to load dashboard data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    refreshData();
+
+    // Add event listener for focus
+    window.addEventListener('focus', refreshData);
+    return () => window.removeEventListener('focus', refreshData);
   }, [user?.id]);
 
   // Remove skill handler
@@ -426,7 +439,7 @@ export default function DashboardPage() {
   return (
     <div className="flex min-h-screen bg-[#FCF9F4]">
       <SidebarProvider>
-          <DashboardSidebar setActiveSection={setActiveSection} activeSection={activeSection} />
+        <DashboardSidebar setActiveSection={setActiveSection} activeSection={activeSection} />
         <main className="flex-1 min-h-screen flex flex-col">
           <div className="flex-1 flex flex-col p-6">
             <div className="flex-1 flex flex-col">
@@ -434,37 +447,39 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
                   <SidebarTrigger className="md:hidden" />
-                  <h1 className="text-[2rem] font-medium text-[#222]">Resumes</h1>
+                  <h1 className="text-[2rem] font-medium text-[#222]">{activeSection}</h1>
                 </div>
                 
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center rounded-md overflow-hidden border border-[#ece7df] bg-white">
-                    <button
-                      onClick={() => setViewMode('grid')}
-                      className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-[#222] text-white' : 'text-[#666] hover:text-[#222]'}`}
-                      title="Grid view"
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="3" width="7" height="7" />
-                        <rect x="14" y="3" width="7" height="7" />
-                        <rect x="3" y="14" width="7" height="7" />
-                        <rect x="14" y="14" width="7" height="7" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => setViewMode('list')}
-                      className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-[#222] text-white' : 'text-[#666] hover:text-[#222]'}`}
-                      title="List view"
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <line x1="3" y1="12" x2="21" y2="12" />
-                        <line x1="3" y1="6" x2="21" y2="6" />
-                        <line x1="3" y1="18" x2="21" y2="18" />
-                      </svg>
-                    </button>
-            </div>
+                {activeSection === "Resumes" && (
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center rounded-md overflow-hidden border border-[#ece7df] bg-white">
+                      <button
+                        onClick={() => setViewMode('grid')}
+                        className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-[#222] text-white' : 'text-[#666] hover:text-[#222]'}`}
+                        title="Grid view"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="3" width="7" height="7" />
+                          <rect x="14" y="3" width="7" height="7" />
+                          <rect x="3" y="14" width="7" height="7" />
+                          <rect x="14" y="14" width="7" height="7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => setViewMode('list')}
+                        className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-[#222] text-white' : 'text-[#666] hover:text-[#222]'}`}
+                        title="List view"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="3" y1="12" x2="21" y2="12" />
+                          <line x1="3" y1="6" x2="21" y2="6" />
+                          <line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
 
               {/* Content */}
               {activeSection === "Resumes" && (
@@ -473,7 +488,7 @@ export default function DashboardPage() {
                   ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 opacity-100' 
                   : 'flex-1 flex justify-center opacity-100'
                 }`}>
-                  {viewMode === 'grid' && (
+                  {viewMode === 'grid' ? (
                     <>
                       <button 
                         onClick={() => setCreateDialogOpen(true)}
@@ -510,7 +525,7 @@ export default function DashboardPage() {
                           <span className="text-sm text-white/70 mt-2">LinkedIn, JSON Resume, etc.</span>
                         </div>
                       </button>
-                      {jobs.map(job => (
+                      {jobs?.map(job => (
                         <Link key={job.id} href={`/preview?job_id=${job.id}`} className="block group [perspective:1000px] animate-in fade-in duration-300">
                           <div className="relative aspect-[3/4] bg-white rounded-sm p-6 flex flex-col border border-[#ece7df] cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
                             <div className="flex-1">
@@ -530,8 +545,7 @@ export default function DashboardPage() {
                         </Link>
                       ))}
                     </>
-                  )}
-                  {viewMode === 'list' && (
+                  ) : (
                     <div className="w-full bg-white/40 backdrop-blur-sm rounded-sm border border-[#ece7df] shadow-[0_1px_3px_0_rgb(0,0,0,0.05)] animate-in fade-in slide-in-from-top-4 duration-300">
                       <button
                         onClick={() => setCreateDialogOpen(true)}
@@ -564,7 +578,7 @@ export default function DashboardPage() {
                           <p className="text-sm text-[#666]">LinkedIn, JSON Resume, etc.</p>
                       </div>
                       </button>
-                      {jobs.map((job, index) => (
+                      {jobs?.length > 0 ? jobs.map((job, index) => (
                         <Link 
                           key={job.id} 
                           href={`/preview?job_id=${job.id}`}
@@ -587,7 +601,11 @@ export default function DashboardPage() {
                             </div>
                           </div>
                         </Link>
-                      ))}
+                      )) : (
+                        <div className="p-6 text-center text-[#666]">
+                          No resumes yet. Create your first resume to get started.
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -610,8 +628,8 @@ export default function DashboardPage() {
                   <div className="divide-y divide-[#ece7df]">
                     {projects.map((project) => (
                       <div key={project.id} className="p-6 hover:bg-white/60 transition-colors">
-                        <div className="flex justify-between items-start gap-4">
-                          <div className="space-y-2 flex-1 min-w-0">
+                        <div className="flex flex-col gap-4">
+                          <div className="space-y-2">
                             <h3 className="text-lg font-medium text-[#222] hover:text-[#D96E36] transition-colors">
                               {project.name}
                             </h3>
@@ -628,7 +646,7 @@ export default function DashboardPage() {
                               </a>
                             )}
                           </div>
-                          <div className="flex gap-2 shrink-0">
+                          <div className="flex justify-end gap-2">
                             <Button variant="ghost" size="sm" onClick={() => startProjectEdit(project)} 
                               className="text-[#666] hover:text-[#D96E36]">
                               Edit
@@ -663,12 +681,12 @@ export default function DashboardPage() {
                     >
                       Add Experience
                     </Button>
-                  </div>
+                            </div>
                   <div className="divide-y divide-[#ece7df]">
                     {experiences.map((experience) => (
                       <div key={experience.id} className="p-6 hover:bg-white/60 transition-colors">
-                        <div className="flex justify-between items-start gap-4">
-                          <div className="space-y-2 flex-1 min-w-0">
+                        <div className="flex flex-col gap-4">
+                          <div className="space-y-2">
                             <h3 className="text-lg font-medium text-[#222] hover:text-[#D96E36] transition-colors">
                               {experience.position}
                             </h3>
@@ -676,7 +694,7 @@ export default function DashboardPage() {
                             <p className="text-sm text-[#666]">{experience.duration}</p>
                             <p className="text-[#666] leading-relaxed">{experience.description}</p>
                           </div>
-                          <div className="flex gap-2 shrink-0">
+                          <div className="flex justify-end gap-2">
                             <Button variant="ghost" size="sm" onClick={() => startExperienceEdit(experience)}
                               className="text-[#666] hover:text-[#D96E36]">
                               Edit
@@ -685,16 +703,16 @@ export default function DashboardPage() {
                               className="text-red-600 hover:text-red-700">
                               Delete
                             </Button>
-                          </div>
-                        </div>
-                      </div>
+                                  </div>
+                                </div>
+                                  </div>
                     ))}
                     {experiences.length === 0 && (
                       <div className="p-6 text-center text-[#666]">
                         No work experience yet. Add your first position to get started.
-                      </div>
-                    )}
-                  </div>
+                                </div>
+                              )}
+                            </div>
                 </div>
               )}
 
@@ -715,15 +733,15 @@ export default function DashboardPage() {
                   <div className="divide-y divide-[#ece7df]">
                     {education.map((edu) => (
                       <div key={edu.id} className="p-6 hover:bg-white/60 transition-colors">
-                        <div className="flex justify-between items-start gap-4">
-                          <div className="space-y-2 flex-1 min-w-0">
+                        <div className="flex flex-col gap-4">
+                          <div className="space-y-2">
                             <h3 className="text-lg font-medium text-[#222] hover:text-[#D96E36] transition-colors">
                               {edu.degree}
                             </h3>
                             <p className="text-[#666]">{edu.institution}</p>
                             <p className="text-sm text-[#666]">{edu.year}</p>
                           </div>
-                          <div className="flex gap-2 shrink-0">
+                          <div className="flex justify-end gap-2">
                             <Button variant="ghost" size="sm" onClick={() => startEducationEdit(edu)}
                               className="text-[#666] hover:text-[#D96E36]">
                               Edit
@@ -792,11 +810,16 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-          </main>
+        </main>
       </SidebarProvider>
 
       {/* Dialogs */}
-      <CreateResumeDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
+      <CreateResumeDialog 
+        open={createDialogOpen} 
+        onOpenChange={setCreateDialogOpen} 
+        projects={projects}
+        experiences={experiences}
+      />
       <ImportResumeDialog open={importDialogOpen} onOpenChange={setImportDialogOpen} />
 
       {/* Edit Dialogs */}
@@ -873,23 +896,23 @@ export default function DashboardPage() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <DialogContent>
+              <DialogContent>
           <DialogHeader>
             <DialogTitle>Are you sure?</DialogTitle>
           </DialogHeader>
           <p className="py-4">
             This will permanently delete this {deleteItem?.type}. This action cannot be undone.
           </p>
-          <DialogFooter>
+                <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDeleteConfirm}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                    Delete
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
       {/* Toast Container */}
       <Toaster />
