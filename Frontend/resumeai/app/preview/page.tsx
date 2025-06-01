@@ -490,8 +490,8 @@ export default function PreviewPage() {
                 <ResumePreview />
               )}
             </div>
-          </div>
-        </main>
+            </div>
+          </main>
       </SidebarProvider>
     </div>
   );

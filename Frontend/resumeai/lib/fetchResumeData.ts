@@ -8,9 +8,9 @@ export async function fetchResumeData(user_id: string, job_id: string) {
       throw new Error('Missing required parameters: user_id or job_id');
     }
 
-    // Fetch all data in parallel using correct linkage columns
+  // Fetch all data in parallel using correct linkage columns
     const [profileRes, resumeStateRes, jobRes] = await Promise.all([
-      supabase.from('user_profiles').select('*').eq('clerk_user_id', user_id).single(),
+    supabase.from('user_profiles').select('*').eq('clerk_user_id', user_id).single(),
       supabase.from('resume_states').select('*').eq('job_id', job_id).eq('profile_id', user_id).single(),
       supabase.from('job_descriptions').select('*').eq('id', job_id).single()
     ]);

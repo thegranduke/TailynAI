@@ -1,8 +1,19 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
+interface PersonalInfo {
+  name: string;
+  email: string;
+  phone: string;
+  headline?: string;
+  location?: string;
+  website?: string;
+  github?: string;
+  summary?: string;
+}
+
 interface ResumePDFProps {
-  personal: any;
+  personal: PersonalInfo;
   skills: any[];
   experiences: any[];
   projects: any[];
@@ -111,9 +122,9 @@ export default function ResumePDF({ personal, skills, experiences, projects, edu
   const hasSkills = skills.length > 0;
 
   return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        {/* Header */}
+  <Document>
+    <Page size="A4" style={styles.page}>
+      {/* Header */}
         <View style={styles.header}>
           <Text style={styles.name}>{personal.name || ""}</Text>
           <View style={styles.contact}>
@@ -123,9 +134,9 @@ export default function ResumePDF({ personal, skills, experiences, projects, edu
           </View>
           {personal.phone && <Text style={{ textAlign: 'center', color: '#444' }}>{personal.phone}</Text>}
           {summary && <Text style={styles.summary}>{summary}</Text>}
-        </View>
+      </View>
 
-        {/* Education */}
+      {/* Education */}
         {hasEducation && (
           <>
             <Text style={styles.sectionHeader}>Education</Text>
@@ -136,16 +147,16 @@ export default function ResumePDF({ personal, skills, experiences, projects, edu
                     <View>
                       <Text style={styles.itemTitle}>{edu.degree}</Text>
                       <Text style={styles.itemSubtitle}>{edu.institution}</Text>
-                    </View>
+              </View>
                     {edu.year && <Text style={styles.itemDate}>{edu.year}</Text>}
-                  </View>
-                </View>
+            </View>
+          </View>
               )
-            ))}
+        ))}
           </>
         )}
 
-        {/* Professional Experience */}
+      {/* Professional Experience */}
         {hasExperiences && (
           <>
             <Text style={styles.sectionHeader}>Professional Experience</Text>
@@ -156,32 +167,32 @@ export default function ResumePDF({ personal, skills, experiences, projects, edu
                     <View>
                       <Text style={styles.itemTitle}>{exp.position}</Text>
                       <Text style={styles.itemSubtitle}>{exp.company}</Text>
-                    </View>
+              </View>
                     <Text style={styles.itemDate}>
                       {exp.location && `${exp.location}, `}
                       {exp.dates || exp.duration}
-                    </Text>
-                  </View>
-                  {exp.bullets ? (
+              </Text>
+            </View>
+            {exp.bullets ? (
                     <View style={styles.bulletList}>
                       {exp.bullets.map((bullet: string, i: number) => (
                         bullet.trim() && <Text key={i} style={styles.bullet}>• {bullet}</Text>
                       ))}
-                    </View>
-                  ) : exp.description && (
+              </View>
+            ) : exp.description && (
                     <View style={styles.bulletList}>
                       {exp.description.split('\n').map((line: string, i: number) => (
                         line.trim() && <Text key={i} style={styles.bullet}>• {line}</Text>
                       ))}
-                    </View>
-                  )}
-                </View>
+              </View>
+            )}
+          </View>
               )
-            ))}
+        ))}
           </>
         )}
 
-        {/* Projects */}
+      {/* Projects */}
         {hasProjects && (
           <>
             <Text style={styles.sectionHeader}>Projects</Text>
@@ -192,31 +203,31 @@ export default function ResumePDF({ personal, skills, experiences, projects, edu
                     <Text style={styles.itemTitle}>{project.name}</Text>
                     {project.dates && <Text style={styles.itemDate}>{project.dates}</Text>}
                   </View>
-                  {project.bullets ? (
+            {project.bullets ? (
                     <View style={styles.bulletList}>
                       {project.bullets.map((bullet: string, i: number) => (
                         bullet.trim() && <Text key={i} style={styles.bullet}>• {bullet}</Text>
                       ))}
-                    </View>
-                  ) : project.description && (
+              </View>
+            ) : project.description && (
                     <View style={styles.bulletList}>
                       {project.description.split('\n').map((line: string, i: number) => (
                         line.trim() && <Text key={i} style={styles.bullet}>• {line}</Text>
                       ))}
-                    </View>
-                  )}
-                  {project.tech_stack && (
+              </View>
+            )}
+            {project.tech_stack && (
                     <Text style={{ fontSize: 8, color: '#666', marginTop: 3 }}>
                       Tech Stack: {project.tech_stack}
                     </Text>
-                  )}
-                </View>
+            )}
+          </View>
               )
-            ))}
+        ))}
           </>
         )}
 
-        {/* Skills */}
+      {/* Skills */}
         {hasSkills && (
           <>
             <Text style={styles.sectionHeader}>Skills</Text>
@@ -224,10 +235,10 @@ export default function ResumePDF({ personal, skills, experiences, projects, edu
               {skills.map((skill: any, index: number) => (
                 skill.name && <Text key={index} style={styles.skill}>{skill.name}</Text>
               ))}
-            </View>
+      </View>
           </>
         )}
-      </Page>
-    </Document>
-  );
+    </Page>
+  </Document>
+);
 } 

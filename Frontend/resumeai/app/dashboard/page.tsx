@@ -136,7 +136,7 @@ function DashboardSidebar({ setActiveSection, activeSection }: { setActiveSectio
               ))}
           </nav>
         </div>
-        <SidebarAccountFooter />
+      <SidebarAccountFooter />
       </SidebarContent>
     </Sidebar>
   );
@@ -206,16 +206,16 @@ export default function DashboardPage() {
   // Refresh data when returning to dashboard
   useEffect(() => {
     const refreshData = async () => {
-      if (!user?.id) return;
-      setLoading(true);
-      setError(null);
+    if (!user?.id) return;
+    setLoading(true);
+    setError(null);
       try {
         const [jobsData, projectsData, experiencesData, educationData, skillsData] = await Promise.all([
-          fetchDashboardJobs(user.id),
-          fetchProjects(user.id),
-          fetchExperiences(user.id),
-          fetchEducation(user.id),
-          fetchSkills(user.id)
+      fetchDashboardJobs(user.id),
+      fetchProjects(user.id),
+      fetchExperiences(user.id),
+      fetchEducation(user.id),
+      fetchSkills(user.id)
         ]);
         setJobs(jobsData);
         setProjects(projectsData);
@@ -439,7 +439,7 @@ export default function DashboardPage() {
   return (
     <div className="flex min-h-screen bg-[#FCF9F4]">
       <SidebarProvider>
-        <DashboardSidebar setActiveSection={setActiveSection} activeSection={activeSection} />
+          <DashboardSidebar setActiveSection={setActiveSection} activeSection={activeSection} />
         <main className="flex-1 min-h-screen flex flex-col">
           <div className="flex-1 flex flex-col p-6">
             <div className="flex-1 flex flex-col">
@@ -448,7 +448,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-4">
                   <SidebarTrigger className="md:hidden" />
                   <h1 className="text-[2rem] font-medium text-[#222]">{activeSection}</h1>
-                </div>
+            </div>
                 
                 {activeSection === "Resumes" && (
                   <div className="flex items-center gap-6">
@@ -477,9 +477,9 @@ export default function DashboardPage() {
                         </svg>
                       </button>
                     </div>
-                  </div>
+                </div>
                 )}
-              </div>
+            </div>
 
               {/* Content */}
               {activeSection === "Resumes" && (
@@ -501,11 +501,11 @@ export default function DashboardPage() {
                                 <line x1="12" y1="5" x2="12" y2="19" />
                                 <line x1="5" y1="12" x2="19" y2="12" />
                               </svg>
+                </div>
                       </div>
-                    </div>
                           <span className="text-lg font-medium">Create a new resume</span>
                           <span className="text-sm text-white/70 mt-2">Start building from scratch</span>
-                        </div>
+                      </div>
                       </button>
                       <button
                         onClick={() => setImportDialogOpen(true)}
@@ -519,7 +519,7 @@ export default function DashboardPage() {
                                 <polyline points="7 10 12 15 17 10" />
                                 <line x1="12" y1="15" x2="12" y2="3" />
                               </svg>
-                            </div>
+                    </div>
                           </div>
                           <span className="text-lg font-medium">Import an existing...</span>
                           <span className="text-sm text-white/70 mt-2">LinkedIn, JSON Resume, etc.</span>
@@ -542,7 +542,7 @@ export default function DashboardPage() {
                                 </div>
                             </div>
                           </div>
-                        </Link>
+                      </Link>
                       ))}
                     </>
                   ) : (
@@ -556,7 +556,7 @@ export default function DashboardPage() {
                             <line x1="12" y1="5" x2="12" y2="19" />
                             <line x1="5" y1="12" x2="19" y2="12" />
                           </svg>
-                </div>
+                    </div>
                 <div>
                           <h3 className="font-medium text-[#222]">Create a new resume</h3>
                           <p className="text-sm text-[#666]">Start building from scratch</p>
@@ -598,16 +598,16 @@ export default function DashboardPage() {
                             <div className="flex items-center text-sm text-[#666] group-hover:text-[#D96E36] transition-colors">
                               <span className="mr-2">Preview</span>
                               <ChevronRight className="w-4 h-4" />
-                            </div>
-                          </div>
+                                </div>
+                                  </div>
                         </Link>
                       )) : (
                         <div className="p-6 text-center text-[#666]">
                           No resumes yet. Create your first resume to get started.
-                        </div>
-                      )}
-                    </div>
-                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
                 </div>
               )}
 
@@ -624,7 +624,7 @@ export default function DashboardPage() {
                     >
                       Add Project
                     </Button>
-                  </div>
+                </div>
                   <div className="divide-y divide-[#ece7df]">
                     {projects.map((project) => (
                       <div key={project.id} className="p-6 hover:bg-white/60 transition-colors">
@@ -645,7 +645,7 @@ export default function DashboardPage() {
                                 <ChevronRight className="w-4 h-4 ml-1" />
                               </a>
                             )}
-                          </div>
+                  </div>
                           <div className="flex justify-end gap-2">
                             <Button variant="ghost" size="sm" onClick={() => startProjectEdit(project)} 
                               className="text-[#666] hover:text-[#D96E36]">
@@ -655,17 +655,17 @@ export default function DashboardPage() {
                               className="text-red-600 hover:text-red-700">
                               Delete
                             </Button>
-                          </div>
                         </div>
                       </div>
+                            </div>
                     ))}
                     {projects.length === 0 && (
                       <div className="p-6 text-center text-[#666]">
                         No projects yet. Add your first project to get started.
-                      </div>
+                          </div>
                     )}
-                  </div>
-                </div>
+                                  </div>
+                                </div>
               )}
 
               {activeSection === "Experiences" && (
@@ -681,7 +681,7 @@ export default function DashboardPage() {
                     >
                       Add Experience
                     </Button>
-                            </div>
+                                  </div>
                   <div className="divide-y divide-[#ece7df]">
                     {experiences.map((experience) => (
                       <div key={experience.id} className="p-6 hover:bg-white/60 transition-colors">
@@ -693,7 +693,7 @@ export default function DashboardPage() {
                             <p className="text-[#666]">{experience.company}</p>
                             <p className="text-sm text-[#666]">{experience.duration}</p>
                             <p className="text-[#666] leading-relaxed">{experience.description}</p>
-                          </div>
+                                </div>
                           <div className="flex justify-end gap-2">
                             <Button variant="ghost" size="sm" onClick={() => startExperienceEdit(experience)}
                               className="text-[#666] hover:text-[#D96E36]">
@@ -703,16 +703,16 @@ export default function DashboardPage() {
                               className="text-red-600 hover:text-red-700">
                               Delete
                             </Button>
-                                  </div>
-                                </div>
-                                  </div>
+                            </div>
+                </div>
+                  </div>
                     ))}
                     {experiences.length === 0 && (
                       <div className="p-6 text-center text-[#666]">
                         No work experience yet. Add your first position to get started.
-                                </div>
+                        </div>
                               )}
-                            </div>
+                      </div>
                 </div>
               )}
 
@@ -729,7 +729,7 @@ export default function DashboardPage() {
                     >
                       Add Education
                     </Button>
-                  </div>
+                            </div>
                   <div className="divide-y divide-[#ece7df]">
                     {education.map((edu) => (
                       <div key={edu.id} className="p-6 hover:bg-white/60 transition-colors">
@@ -750,16 +750,16 @@ export default function DashboardPage() {
                               className="text-red-600 hover:text-red-700">
                               Delete
                             </Button>
-                          </div>
-                        </div>
-                      </div>
+                                  </div>
+                                </div>
+                                  </div>
                     ))}
                     {education.length === 0 && (
                       <div className="p-6 text-center text-[#666]">
                         No education history yet. Add your first degree to get started.
-                      </div>
-                    )}
-                  </div>
+                                </div>
+                              )}
+                            </div>
                 </div>
               )}
 
@@ -781,7 +781,7 @@ export default function DashboardPage() {
                     >
                       Add
                     </Button>
-                    </div>
+                  </div>
                   </div>
                   <div className="p-6">
                     <div className="flex flex-wrap gap-2">
@@ -805,8 +805,8 @@ export default function DashboardPage() {
                         No skills added yet. Add your first skill to get started.
                       </div>
                   )}
-                  </div>
                 </div>
+            </div>
               )}
             </div>
           </div>
