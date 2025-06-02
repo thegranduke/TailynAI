@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import ResumePreview from "@/components/ResumePreview";
 import { useResumeStore } from "@/store/useResumeStore";
 import { fetchResumeData } from "@/lib/fetchResumeData";
@@ -47,6 +47,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 
 interface Experience {
   id: number;
@@ -84,7 +85,7 @@ const sections = [
   { id: 'projects', label: 'Projects', icon: Rocket },
 ];
 
-export default function PreviewPage() {
+function PreviewContent() {
   const personal = useResumeStore(s => s.personal);
   const skills = useResumeStore(s => s.skills);
   const experiences = useResumeStore(s => s.experiences);
@@ -117,7 +118,6 @@ export default function PreviewPage() {
     if (!user?.id) return;
     const fetchDatabaseItems = async () => {
       try {
-        const { createClient } = await import('@supabase/supabase-js');
         const supabase = createClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -494,5 +494,17 @@ export default function PreviewPage() {
           </main>
       </SidebarProvider>
     </div>
+  );
+}
+
+export default function PreviewPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-[#D96E36]" />
+      </div>
+    }>
+      <PreviewContent />
+    </Suspense>
   );
 } 
