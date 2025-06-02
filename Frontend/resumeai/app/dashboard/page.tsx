@@ -714,7 +714,7 @@ export default function DashboardPage() {
                               )}
                       </div>
                 </div>
-              )}
+                  )}
 
               {activeSection === "Education" && (
                 <div className="w-full bg-white/40 backdrop-blur-sm rounded-sm border border-[#ece7df] shadow-[0_1px_3px_0_rgb(0,0,0,0.05)] animate-in fade-in slide-in-from-top-4 duration-300">

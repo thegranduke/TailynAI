@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 
 const supabase = createClient(
@@ -7,12 +7,18 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+type RouteContext = {
+  params: {
+    id: string;
+  };
+};
+
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: RouteContext
 ) {
   try {
-    const { id } = params;
+    const { id } = context.params;
     const body = await request.json();
 
     // Validate required fields
@@ -55,11 +61,11 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: RouteContext
 ) {
   try {
-    const { id } = params;
+    const { id } = context.params;
 
     // Delete the job from the database
     const { error } = await supabase
