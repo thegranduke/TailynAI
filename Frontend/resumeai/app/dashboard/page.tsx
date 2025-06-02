@@ -118,7 +118,7 @@ function DashboardSidebar({ setActiveSection, activeSection }: { setActiveSectio
       <SidebarContent className="flex flex-col h-full gap-0">
         <div className="p-6">
           <Link href="/dashboard" className="flex items-center gap-2 mb-8">
-            <span className="text-2xl font-bold text-[#D96E36]">Taylin</span>
+            <span className="text-2xl font-bold text-[#D96E36]">Tailyn</span>
           </Link>
           <nav>
               {sidebarLinks.map(link => (

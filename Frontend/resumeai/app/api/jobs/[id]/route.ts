@@ -7,19 +7,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
-
 export async function PUT(
-  request: NextRequest,
-  context: RouteContext
+  req: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
-    const body = await request.json();
+    const { id } = params;
+    const body = await req.json();
 
     // Validate required fields
     if (!body.title || !body.company || !body.raw_description) {
@@ -61,11 +55,11 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  context: RouteContext
+  req: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = params;
 
     // Delete the job from the database
     const { error } = await supabase
