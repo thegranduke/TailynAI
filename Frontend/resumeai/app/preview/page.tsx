@@ -357,7 +357,7 @@ function PreviewContent() {
         <Sidebar className="border-r border-[#ece7df] bg-[#FFFEFB]" collapsible="offcanvas">
           <SidebarContent className="flex flex-col h-full gap-0">
             {/* Header */}
-            <div className="shrink-0 border-b border-[#ece7df]">
+            <div className="shrink-0 bg-white">
               <div className="px-4 h-14 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <SidebarTrigger className="md:hidden" />
