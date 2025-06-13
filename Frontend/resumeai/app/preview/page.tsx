@@ -147,12 +147,49 @@ function PreviewContent() {
     if (!user?.id || !job_id) return;
     setLoading(true);
     setError(null);
-    fetchResumeData(user.id, job_id)
-      .then(data => {
+
+    // First fetch the job matches
+    const fetchJobMatches = async () => {
+      try {
+        const response = await fetch(`/api/jobs/${job_id}/matches`);
+        if (!response.ok) throw new Error('Failed to fetch job matches');
+        const data = await response.json();
+
+        // Update the store with matched content
+        if (data) {
+          // Update skills with matched skills
+          if (data.skills?.length > 0) {
+            setSkills(data.skills);
+          }
+
+          // Update projects with matched and improved descriptions
+          if (data.projects?.length > 0) {
+            setProjects(data.projects);
+          }
+
+          // Update experiences with matched and improved descriptions
+          if (data.experiences?.length > 0) {
+            setExperiences(data.experiences);
+          }
+        }
+        return data;
+      } catch (err) {
+        console.error('Error fetching job matches:', err);
+        return null;
+      }
+    };
+
+    // Then fetch the resume data
+    Promise.all([
+      fetchJobMatches(),
+      fetchResumeData(user.id, job_id)
+    ])
+      .then(([matches, data]) => {
         setPersonal(data.personal);
-        setSkills(data.skills);
-        setExperiences(data.experiences);
-        setProjects(data.projects);
+        // Only set skills, experiences, and projects if they weren't set by matches
+        if (!matches?.skills?.length) setSkills(data.skills);
+        if (!matches?.experiences?.length) setExperiences(data.experiences);
+        if (!matches?.projects?.length) setProjects(data.projects);
         setEducation(data.education);
         setLoading(false);
       })
@@ -324,6 +361,12 @@ function PreviewContent() {
         />
       ).toBlob();
 
+      // Save first before downloading
+      const job_id = searchParams.get("job_id");
+      if (job_id && user?.id) {
+        await handleSave();
+      }
+
       // Download the PDF
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
@@ -334,15 +377,6 @@ function PreviewContent() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      // Save in the background without blocking the download
-      const job_id = searchParams.get("job_id");
-      if (job_id && user?.id) {
-        toast.promise(handleSave(), {
-          loading: 'Saving your progress...',
-          success: 'Progress saved successfully',
-          error: 'Failed to save progress'
-        });
-      }
     } catch (error) {
       console.error('Failed to generate PDF:', error);
       toast.error("Failed to download resume");
@@ -353,7 +387,7 @@ function PreviewContent() {
 
   return (
     <div className="flex min-h-screen bg-[#FCF9F4]">
-      <SidebarProvider style={{ "--sidebar-width": "450px" } as React.CSSProperties}>
+      <SidebarProvider style={{ "--sidebar-width": "400px" } as React.CSSProperties}>
         <Sidebar className="border-r border-[#ece7df] bg-[#FFFEFB]" collapsible="offcanvas">
           <SidebarContent className="flex flex-col h-full gap-0">
             {/* Header */}
@@ -480,9 +514,9 @@ function PreviewContent() {
         <main className="flex-1 min-h-screen flex flex-col">
           <div className="flex items-center gap-2 p-4 border-b border-[#ece7df] md:hidden">
             <SidebarTrigger />
-            <span className="text-sm text-[#666]">Toggle Editor</span>
+            <span className="text-sm text-[#D96E36]">Toggle Editor</span>
           </div>
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-6 min-w-[800px]">
             <div className="h-full flex items-center">
               {error ? (
                 <div className="text-red-500 p-8">{error}</div>

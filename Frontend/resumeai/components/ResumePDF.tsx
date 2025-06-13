@@ -95,6 +95,11 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: '#444',
   },
+  headline: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
 });
 
 export default function ResumePDF({ personal, skills, experiences, projects, education }: ResumePDFProps) {
@@ -126,12 +131,15 @@ export default function ResumePDF({ personal, skills, experiences, projects, edu
     <Page size="A4" style={styles.page}>
       {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.name}>{personal.name || ""}</Text>
-          <View style={styles.contact}>
-            {personal.email && <Text>{personal.email}</Text>}
-            {website && <Text>🌐 {website}</Text>}
-            {github && <Text>github.com {github}</Text>}
-          </View>
+          <Text style={styles.name}>{personal?.name}</Text>
+          {personal?.headline && (
+            <Text style={styles.headline}>{personal.headline}</Text>
+          )}
+          <Text style={styles.contact}>
+            {personal?.email}
+            {personal?.location && personal.email && " • "}
+            {personal?.location}
+          </Text>
           {personal.phone && <Text style={{ textAlign: 'center', color: '#444' }}>{personal.phone}</Text>}
           {summary && <Text style={styles.summary}>{summary}</Text>}
       </View>

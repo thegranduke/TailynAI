@@ -103,15 +103,15 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
                   </div>
                   <div className="flex-1">
                     <Input
-                      value={exp.company || 'Untitled Company'}
+                      value={exp.position || ''}
                       onChange={(e) => {
                         const newExperiences = [...experiences];
                         const index = experiences.findIndex(x => x.id === exp.id);
-                        newExperiences[index] = { ...exp, company: e.target.value };
+                        newExperiences[index] = { ...exp, position: e.target.value };
                         setExperiences(newExperiences);
                       }}
                       className={cn(inputStyles.base, inputStyles.title, "border-0 group-data-[state=open]:border-[1px] group-data-[state=open]:border-[#ece7df] hover:bg-transparent")}
-                      placeholder="Company Name"
+                      placeholder="Position Title"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>
@@ -134,17 +134,17 @@ export function ResumeSectionEditor({ section }: ResumeSectionEditorProps) {
             <CollapsibleContent>
               <div className="px-6 pb-6 space-y-4 bg-[#FFFEFB]">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-[#666]">Position</Label>
+                  <Label className="text-sm font-medium text-[#666]">Company</Label>
                   <Input
-                    value={exp.position}
+                    value={exp.company || ''}
                     onChange={(e) => {
                       const newExperiences = [...experiences];
                       const index = experiences.findIndex(x => x.id === exp.id);
-                      newExperiences[index] = { ...exp, position: e.target.value };
+                      newExperiences[index] = { ...exp, company: e.target.value };
                       setExperiences(newExperiences);
                     }}
                     className={cn(inputStyles.base)}
-                    placeholder="Your role at the company"
+                    placeholder="Company Name"
                   />
                 </div>
                 <div className="space-y-2">

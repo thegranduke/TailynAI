@@ -53,7 +53,7 @@ export default function ResumePreview() {
   }, []);
 
   return (
-    <div className="w-full max-w-[800px] mx-auto">
+    <div className="w-full max-w-[800px] mx-auto min-w-[800px]">
       <div className="w-full" ref={containerRef}>
         <AspectRatio ratio={1 / 1.4142}>
           <div className="absolute inset-0 bg-white rounded-xl border border-[#ece7df]">
@@ -67,19 +67,16 @@ export default function ResumePreview() {
                 }}
               >
         {/* Header */}
-        <div className="text-center mb-2">
-          <div className="text-2xl font-light mb-1">{personal.name || ""}</div>
-          <div className="flex flex-col items-center justify-center text-sm text-gray-700 mb-2 gap-1">
-            <div className="flex flex-wrap justify-center gap-2">
-              {personal.email && <span className="flex items-center gap-1">{personal.email}</span>}
-              {website && <span className="flex items-center gap-1"><span className="text-sm">🌐</span> {website}</span>}
-              {github && <span className="flex items-center gap-1"><span className="text-sm">github.com</span> {github}</span>}
-            </div>
-            {personal.phone && <div>{personal.phone}</div>}
-          </div>
-          {summary && (
-            <div className="italic text-[10px] text-gray-500 mb-2">{summary}</div>
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold mb-1">{personal?.name}</h1>
+          {personal?.headline && (
+            <div className="text-gray-600 mb-1">{personal.headline}</div>
           )}
+          <div className="text-gray-600 text-sm">
+            {personal?.email}
+            {personal?.location && personal.email && " • "}
+            {personal?.location}
+          </div>
         </div>
 
         {/* Education */}

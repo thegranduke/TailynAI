@@ -40,23 +40,28 @@ export function CreateResumeDialog({ open, onOpenChange, projects, experiences }
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    title: "",
-    company: "",
-    jobDescription: ""
+    title: '',
+    company: ''
   });
 
   const hasContent = projects.length > 0 || experiences.length > 0;
 
-  const handleCreateResume = async (withTailyn: boolean = false) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleCreateResume();
+  };
+
+  const handleCreateResume = async () => {
     if (!formData.title.trim() || !formData.company.trim()) {
-      toast.error("Please enter both job title and company name");
+      toast.error("Please fill in all required fields");
       return;
     }
 
-    const token = await getToken();
     setLoading(true);
+    const token = await getToken();
+
     try {
-      // First create a new job
+      // Create job
       const response = await fetch('/api/jobs', {
         method: 'POST',
         headers: {
@@ -66,7 +71,7 @@ export function CreateResumeDialog({ open, onOpenChange, projects, experiences }
         body: JSON.stringify({
           title: formData.title.trim(),
           company: formData.company.trim(),
-          jobDescription: withTailyn ? formData.jobDescription.trim() : null
+          description: null
         })
       });
 
@@ -75,68 +80,10 @@ export function CreateResumeDialog({ open, onOpenChange, projects, experiences }
         throw new Error(errorData.message || 'Failed to create job');
       }
 
-      const data = await response.json();
-      const job_id = data.id;
-
-      // Only do matching if using Tailyn
-      if (withTailyn) {
-        if (!formData.jobDescription.trim()) {
-          toast.error("Please enter a job description");
-          return;
-        }
-
-        if (!hasContent) {
-          toast.error("You need some projects or experiences to use Tailyn. Add some first!");
-          return;
-        }
-
-        // Match job description
-        const matchResponse = await fetch('/api/match-job', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            job_description: formData.jobDescription.trim(),
-            job_id
-          }),
-        });
-
-        if (!matchResponse.ok) {
-          const errorData = await matchResponse.json().catch(() => ({}));
-          console.error('Match job failed:', {
-            status: matchResponse.status,
-            statusText: matchResponse.statusText,
-            error: errorData
-          });
-          throw new Error(`Failed to match job: ${matchResponse.status} ${matchResponse.statusText}`);
-        }
-
-        const matchData = await matchResponse.json();
-        console.log('Match successful:', matchData);
-      }
-
-      // Save initial resume state
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-
-      await supabase
-        .from('resume_states')
-        .upsert({
-          job_id: parseInt(job_id),
-          profile_id: user?.id,
-          personal: {
-            title: formData.title.trim(),
-            company: formData.company.trim()
-          },
-          updated_at: new Date().toISOString()
-        });
+      const { id: jobId } = await response.json();
 
       // Redirect to preview page
-      router.push(`/preview?job_id=${job_id}`);
+      router.push(`/preview?job_id=${jobId}`);
       onOpenChange(false);
     } catch (error) {
       console.error('Error in handleCreateResume:', error);
@@ -148,129 +95,47 @@ export function CreateResumeDialog({ open, onOpenChange, projects, experiences }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-center">Create New Resume</DialogTitle>
-          <DialogDescription className="text-center text-[#666]">
-            Enter job details to create a new resume or let Tailyn help you match your experience
+          <DialogTitle>Create New Resume</DialogTitle>
+          <DialogDescription>
+            Enter the job details to create a new resume.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={(e) => { e.preventDefault(); handleCreateResume(true); }} className="overflow-y-auto">
+        <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="title">Job Title</Label>
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                 placeholder="e.g. Software Engineer"
-                className="col-span-3"
+                required
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="company">Company Name</Label>
+              <Label htmlFor="company">Company</Label>
               <Input
                 id="company"
                 value={formData.company}
-                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
                 placeholder="e.g. Google"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="jobDescription">Job Description</Label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="text-xs text-[#666] italic">
-                        {hasContent 
-                          ? "Required for Tailyn matching" 
-                          : "Add projects or experience first to use Tailyn"
-                        }
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>
-                        {hasContent 
-                          ? "Add a job description to let Tailyn suggest relevant experiences and projects" 
-                          : "You need to add some projects or work experience before using Tailyn"
-                        }
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <Textarea
-                id="jobDescription"
-                value={formData.jobDescription}
-                onChange={(e) => setFormData({ ...formData, jobDescription: e.target.value })}
-                placeholder={hasContent 
-                  ? "Paste the job description here to let Tailyn match your experiences..." 
-                  : "Add some projects or work experience first to use Tailyn matching..."
-                }
-                className="min-h-[200px] resize-y"
+                required
               />
             </div>
           </div>
-          <DialogFooter className="flex-col sm:flex-row gap-2 mt-6">
-            <Button 
-              type="button"
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              className="sm:order-1"
-            >
-              Cancel
+          <DialogFooter>
+            <Button type="submit" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                'Create Resume'
+              )}
             </Button>
-            <div className="flex gap-2 sm:order-2">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => handleCreateResume(false)}
-                    >
-                      Build Resume
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Create an empty resume to fill out manually</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="submit"
-                      className={`${hasContent ? 'bg-[#D96E36] hover:bg-[#b85a28]' : 'bg-gray-400 cursor-not-allowed'}`}
-                      disabled={loading || !hasContent}
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Creating...
-                        </>
-                      ) : (
-                        <>
-                          <Wand2 className="mr-2 h-4 w-4" />
-                          Use Tailyn
-                        </>
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      {hasContent 
-                        ? "Let Tailyn automatically match and populate your resume based on the job description" 
-                        : "Add some projects or work experience first to use Tailyn"
-                      }
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -278,75 +143,96 @@ export function CreateResumeDialog({ open, onOpenChange, projects, experiences }
   );
 }
 
-export function ImportResumeDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+export function UploadJobDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const [jobDescription, setJobDescription] = useState("");
+  const [title, setTitle] = useState("");
+  const [company, setCompany] = useState("");
   const [loading, setLoading] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) {
-      toast.error("Please select a file to upload");
-      return;
-    }
+    if (!jobDescription.trim() || !title.trim() || !company.trim()) return;
 
     setLoading(true);
-    const formData = new FormData();
-    formData.append("resume", file);
-
     try {
-      const response = await fetch("/api/resume/import", {
-        method: "POST",
-        body: formData,
+      const response = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          company,
+          description: jobDescription
+        }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to import resume");
+        throw new Error('Failed to create job');
       }
 
-      toast.success("Resume parsed successfully! Your profile has been updated.");
-      onOpenChange(false);
+      const job = await response.json();
+      router.push(`/preview?job_id=${job.id}`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to import resume. Please try again.");
+      console.error('Error creating job:', error);
+      toast.error('Failed to create job. Please try again.');
     } finally {
       setLoading(false);
+      onOpenChange(false);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-center">Import Existing Resume</DialogTitle>
-          <DialogDescription className="text-center text-[#666]">
-            Upload your existing resume in PDF format
+          <DialogTitle>Upload Job Description</DialogTitle>
+          <DialogDescription>
+            Paste the job description and we'll match it with your experience.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="file">Resume File</Label>
-              <Input
-                id="file"
-                type="file"
-                accept=".pdf"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                className="col-span-3"
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Job Title</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Senior Software Engineer"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="company">Company Name</Label>
+            <Input
+              id="company"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              placeholder="e.g. Google"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Job Description</Label>
+            <Textarea
+              id="description"
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              placeholder="Paste the full job description here..."
+              className="min-h-[200px]"
+              required
+            />
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
             <Button type="submit" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Importing...
+                  Processing...
                 </>
               ) : (
-                "Import Resume"
+                'Match and Create Resume'
               )}
             </Button>
           </DialogFooter>

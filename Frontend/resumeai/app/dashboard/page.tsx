@@ -32,7 +32,7 @@ import { fetchProjects, fetchExperiences, fetchEducation, fetchSkills } from "@/
 import ResumePreview from "@/components/ResumePreview";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter } from "@/components/ui/dialog";
 import { Toaster } from "sonner";
-import { CreateResumeDialog, ImportResumeDialog } from "@/components/resume-dialogs";
+import { CreateResumeDialog, UploadJobDialog } from "@/components/resume-dialogs";
 import { EditDialog } from "@/components/edit-dialog";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
@@ -418,6 +418,10 @@ export default function DashboardPage() {
     );
 
     switch (deleteItem.type) {
+      case 'resume':
+        await supabase.from('job_descriptions').delete().eq('id', deleteItem.id);
+        setJobs(jobs => jobs.filter(j => j.id !== deleteItem.id));
+        break;
       case 'project':
         await supabase.from('projects').delete().eq('id', deleteItem.id);
         setProjects(projects => projects.filter(p => p.id !== deleteItem.id));
@@ -494,55 +498,69 @@ export default function DashboardPage() {
                         onClick={() => setCreateDialogOpen(true)}
                         className="block group [perspective:1000px] animate-in fade-in duration-300"
                       >
-                        <div className="relative aspect-[3/4] bg-[#222] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
-                          <div className="mb-6">
-                            <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
-                                <line x1="12" y1="5" x2="12" y2="19" />
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                              </svg>
-                </div>
-                      </div>
-                          <span className="text-lg font-medium">Create a new resume</span>
-                          <span className="text-sm text-white/70 mt-2">Start building from scratch</span>
-                      </div>
+                        <div className="relative aspect-[3/4] transform-gpu transition-all duration-500 ease-out group-hover:[transform:rotateX(4deg)] [transform-style:preserve-3d] [transform-origin:50%_100%]">
+                          <div className="absolute inset-0 bg-[#222] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer">
+                            <div className="mb-6">
+                              <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
+                                  <line x1="12" y1="5" x2="12" y2="19" />
+                                  <line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
+                              </div>
+                            </div>
+                            <span className="text-lg font-medium">Create a new resume</span>
+                            <span className="text-sm text-white/70 mt-2">Start building from scratch</span>
+                          </div>
+                        </div>
                       </button>
                       <button
                         onClick={() => setImportDialogOpen(true)}
                         className="block group [perspective:1000px] animate-in fade-in duration-300"
                       >
-                        <div className="relative aspect-[3/4] bg-[#C4532D] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
-                          <div className="mb-6">
-                            <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="7 10 12 15 17 10" />
-                                <line x1="12" y1="15" x2="12" y2="3" />
-                              </svg>
-                    </div>
+                        <div className="relative aspect-[3/4] transform-gpu transition-all duration-500 ease-out group-hover:[transform:rotateX(4deg)] [transform-style:preserve-3d] [transform-origin:50%_100%]">
+                          <div className="absolute inset-0 bg-[#C4532D] text-white rounded-sm p-6 flex flex-col items-center justify-center cursor-pointer">
+                            <div className="mb-6">
+                              <div className="w-12 h-12 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:border-white transition-colors">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-colors">
+                                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                  <polyline points="7 10 12 15 17 10" />
+                                  <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                              </div>
+                            </div>
+                            <span className="text-lg font-medium">Upload and Match to Job</span>
+                            <span className="text-sm text-white/70 mt-2">Paste job description to match your experience</span>
                           </div>
-                          <span className="text-lg font-medium">Import an existing...</span>
-                          <span className="text-sm text-white/70 mt-2">LinkedIn, JSON Resume, etc.</span>
                         </div>
                       </button>
                       {jobs?.map(job => (
-                        <Link key={job.id} href={`/preview?job_id=${job.id}`} className="block group [perspective:1000px] animate-in fade-in duration-300">
-                          <div className="relative aspect-[3/4] bg-white rounded-sm p-6 flex flex-col border border-[#ece7df] cursor-pointer transition-all duration-500 ease-out transform-gpu group-hover:[transform:rotateX(4deg)] will-change-transform [transform-style:preserve-3d] [transform-origin:50%_100%]">
-                            <div className="flex-1">
-                              <h3 className="text-lg font-medium text-[#222] line-clamp-2">{job.title}</h3>
-                              <p className="text-sm text-[#666] mt-1">{job.company}</p>
-                              <div className="mt-4 text-xs text-[#666]">
-                                Created {formatDate(job.created_at)}
+                        <div key={job.id} className="relative block group animate-in fade-in duration-300">
+                          <button
+                            onClick={() => handleDeleteClick('resume', job.id)}
+                            className="absolute top-2 left-2 z-10 w-6 h-6 rounded-full bg-white/80 text-[#666] flex items-center justify-center hover:text-red-500 transition-colors"
+                          >
+                            ×
+                          </button>
+                          <Link href={`/preview?job_id=${job.id}`} className="block">
+                            <div className="relative aspect-[3/4]">
+                              <div className="absolute inset-0 bg-white rounded-sm p-6 flex flex-col border border-[#ece7df] cursor-pointer hover:border-[#D96E36]/30 transition-colors">
+                                <div className="flex-1">
+                                  <h3 className="text-lg font-medium text-[#222] line-clamp-2">{job.title}</h3>
+                                  <p className="text-sm text-[#666] mt-1">{job.company}</p>
+                                  <div className="mt-4 text-xs text-[#666]">
+                                    Created {formatDate(job.created_at)}
                                   </div>
                                 </div>
-                            <div className="mt-6 pt-6 border-t border-[#ece7df]">
-                              <div className="flex items-center justify-between">
-                                <div className="text-sm text-[#666]">View Resume</div>
-                                <ChevronRight className="w-4 h-4 text-[#666] group-hover:text-[#D96E36] transition-colors" />
+                                <div className="mt-6 pt-6 border-t border-[#ece7df]">
+                                  <div className="flex items-center justify-between">
+                                    <div className="text-sm text-[#666]">View Resume</div>
+                                    <ChevronRight className="w-4 h-4 text-[#666] group-hover:text-[#D96E36] transition-colors" />
+                                  </div>
                                 </div>
+                              </div>
                             </div>
-                          </div>
-                      </Link>
+                          </Link>
+                        </div>
                       ))}
                     </>
                   ) : (
@@ -579,28 +597,35 @@ export default function DashboardPage() {
                       </div>
                       </button>
                       {jobs?.length > 0 ? jobs.map((job, index) => (
-                        <Link 
-                          key={job.id} 
-                          href={`/preview?job_id=${job.id}`}
-                          className="flex items-center gap-3 p-4 hover:bg-white/80 group transition-colors duration-200 border-b border-[#ece7df] last:border-b-0"
-                        >
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FCF9F4] text-[#D96E36] border border-[#ece7df] group-hover:bg-[#D96E36] group-hover:text-white group-hover:border-[#D96E36] transition-colors">
-                            {job.title[0].toUpperCase()}
+                        <div key={job.id} className="relative flex items-center gap-3 p-4 hover:bg-white/80 group transition-colors duration-200 border-b border-[#ece7df] last:border-b-0">
+                          <button
+                            onClick={() => handleDeleteClick('resume', job.id)}
+                            className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 text-[#666] flex items-center justify-center hover:text-red-500 transition-colors"
+                          >
+                            ×
+                          </button>
+                          <Link 
+                            href={`/preview?job_id=${job.id}`}
+                            className="flex items-center gap-3 flex-1"
+                          >
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FCF9F4] text-[#D96E36] border border-[#ece7df] group-hover:bg-[#D96E36] group-hover:text-white group-hover:border-[#D96E36] transition-colors">
+                              {job.title ? job.title[0].toUpperCase() : ''}
                             </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-[#222] truncate group-hover:text-[#D96E36] transition-colors">{job.title}</h3>
-                            <p className="text-sm text-[#666] mt-0.5">{job.company}</p>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className="text-xs text-[#666]">
-                              {formatDate(job.created_at)}
-                                  </div>
-                            <div className="flex items-center text-sm text-[#666] group-hover:text-[#D96E36] transition-colors">
-                              <span className="mr-2">Preview</span>
-                              <ChevronRight className="w-4 h-4" />
-                                </div>
-                                  </div>
-                        </Link>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-medium text-[#222] truncate group-hover:text-[#D96E36] transition-colors">{job.title}</h3>
+                              <p className="text-sm text-[#666] mt-0.5">{job.company}</p>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <div className="text-xs text-[#666]">
+                                {formatDate(job.created_at)}
+                              </div>
+                              <div className="flex items-center text-sm text-[#666] group-hover:text-[#D96E36] transition-colors">
+                                <span className="mr-2">Preview</span>
+                                <ChevronRight className="w-4 h-4" />
+                              </div>
+                            </div>
+                          </Link>
+                        </div>
                       )) : (
                         <div className="p-6 text-center text-[#666]">
                           No resumes yet. Create your first resume to get started.
@@ -820,7 +845,7 @@ export default function DashboardPage() {
         projects={projects}
         experiences={experiences}
       />
-      <ImportResumeDialog open={importDialogOpen} onOpenChange={setImportDialogOpen} />
+      <UploadJobDialog open={importDialogOpen} onOpenChange={setImportDialogOpen} />
 
       {/* Edit Dialogs */}
       <EditDialog<Project>

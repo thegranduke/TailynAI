@@ -1,4 +1,20 @@
-import { supabase } from './supabase';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    auth: {
+      persistSession: false // Since we're using Clerk for auth
+    },
+    global: {
+      headers: {
+        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`
+      }
+    }
+  }
+);
 
 export async function fetchResumeData(user_id: string, job_id: string) {
   try {
@@ -8,9 +24,9 @@ export async function fetchResumeData(user_id: string, job_id: string) {
       throw new Error('Missing required parameters: user_id or job_id');
     }
 
-  // Fetch all data in parallel using correct linkage columns
+    // Fetch all data in parallel using correct linkage columns
     const [profileRes, resumeStateRes, jobRes] = await Promise.all([
-    supabase.from('user_profiles').select('*').eq('clerk_user_id', user_id).single(),
+      supabase.from('user_profiles').select('*').eq('clerk_user_id', user_id).single(),
       supabase.from('resume_states').select('*').eq('job_id', job_id).eq('profile_id', user_id).single(),
       supabase.from('job_descriptions').select('*').eq('id', job_id).single()
     ]);
